@@ -298,7 +298,7 @@ def pipeline(args, model, tokenizer, save_output=False):
                     if task == 'resp':
                         beam_size = args.beam_size
                         max_length = args.max_target_length
-                    else:
+                    else: ## HJ : task == 'goal'
                         beam_size = 1
                         max_length = 32
                     generated_ids = model_to_eval.bart.generate(
@@ -382,7 +382,9 @@ def main():
     parser.add_argument("--in_goal_with_goal_seq", default='T', type=str,
                         help="tokenizing with goal_sequence")  # HJ : tokenizing with goal_sequence
     parser.add_argument("--in_topic_with_goal_seq", default='T', type=str,
-                        help="HJ : tokenized with topic_sequence")  # HJ : tokenized with topic_sequence
+                        help="HJ : tokenized with topic_sequence")  # HJ : in_topic_with_goal_seq tokenized with topic_sequence
+    parser.add_argument("--in_topic_with_topic_seq", default='T', type=str,
+                        help="HJ : tokenized with topic_sequence")  # HJ : in_topic_with_topic_seq tokenized with topic_sequence
 
     ## Other parameters
 
@@ -459,7 +461,7 @@ def main():
                                                                   args.in_topic_with_goal_seq.upper()[0]
         pass
     elif sysChecker() == "Windows":  # HJ local
-        args.do_train, args.do_eval, args.do_finetune, args.overwrite_output_dir = True, True, True, True
+        args.do_train, args.do_eval, args.do_finetune, args.overwrite_output_dir = False, False, False, True
         args.do_pipeline=True
         args.gpu, args.num_train_epochs, args.num_ft_epochs = '0', 1, 1
         args.per_gpu_train_batch_size = 1
@@ -557,7 +559,7 @@ def main():
         logging.info(get_time_kst())
         logging.info(" Eval task ")
         logging.info("")
-        evaluate(args, model, tokenizer, save_output=True)
+        evaluate(args, model, tokenizer, save_output=True) # Evaluation
 
     # Pipeline Evaluation
     if args.do_pipeline:

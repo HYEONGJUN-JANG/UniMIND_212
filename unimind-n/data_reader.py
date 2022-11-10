@@ -148,7 +148,11 @@ def convert_to_features(args, tokenizer, mode):
                 else:
                     new_source_id = profile_id + source_know_id + tokenizer.encode('预测下一个话题：')[1:] # # HJ Topic예측시 Goal 빼고 다 넣기
                 #new_source_id = profile_id + source_know_id + tokenizer.encode('[knowledge]')[1:] # HJ Topic예측시 Goal 빼고 다 넣기
-                source_know_id += (tokenizer.encode('[knowledge]' + '|'.join(utt['knowledge']))[1:] + tokenizer.encode('[{}]'.format(utt['role']) + utt['utterance'])[1:])
+                # source_know_id += (tokenizer.encode('[knowledge]' + '|'.join(utt['knowledge']))[1:] + tokenizer.encode('[{}]'.format(utt['role']) + utt['utterance'])[1:]) # HJ Default 토픽예측에서 토픽시퀀스 살아있는상태
+                if args.in_topic_with_topic_seq=='T':
+                    source_know_id += (tokenizer.encode('[knowledge]' + '|'.join(utt['knowledge']))[1:] + tokenizer.encode('[{}]'.format(utt['role']) + utt['utterance'])[1:])
+                else:
+                    source_know_id += (tokenizer.encode('[{}]'.format(utt['role']) + utt['utterance'])[1:]) # HJ: Topic 예측시 Topic Seq 빼고 보기
                 source_ids.append([101] + new_source_id[-args.max_seq_length+1:])
                 target_ids.append([101] + target_id[-args.max_target_length+1:])
                 item_ids.append([len(item_dict)-1])
