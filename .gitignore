@@ -3,6 +3,11 @@
 /data/
 /unimind-n/runs/
 /unimind-n/study/
+*.csv
+*.txt
+*.zip
+*.ipynb
+
 
 
 
