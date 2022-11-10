@@ -18,7 +18,7 @@ from model import UniMind
 import math
 from pytz import timezone
 from datetime import datetime
-
+import sys
 
 def get_time_kst(): return datetime.now(timezone('Asia/Seoul')).strftime('%Y-%m-%d_%H%M%S')
 
@@ -33,15 +33,15 @@ class DataFrame(Dataset):
         self.max_tgt_len = args.max_target_length
 
     def __getitem__(self, index):
-        return self.source_ids[index][-self.max_len:], self.target_ids[index][-self.max_tgt_len:], self.item_ids[
-            index], self.item_num
+        return self.source_ids[index][-self.max_len:], self.target_ids[index][-self.max_tgt_len:], self.item_ids[index], \
+               self.item_num
 
     def __len__(self):
         return len(self.source_ids)
 
 
 def collate_fn(data):
-    source_ids, target_ids, item_ids, item_num = zip(*data)
+    source_ids, target_ids, item_ids, item_num = zip(*data) # DataFrame.getitem으로받은것 (4개)
     batch_size = len(source_ids)
 
     input_ids = [torch.tensor(source_id).long() for source_id in source_ids]
@@ -120,7 +120,7 @@ def train(args, train_dataset, model, tokenizer, task=None):
                       'item_ids': batch['item_ids'].to(args.device)}
             outputs = model(**inputs)
             loss = outputs[0]  # model outputs are always tuple in pytorch-transformers (see doc)
-
+            ## HJ 멀티GPU때
             if len(args.device_id) > 1:
                 loss = loss.mean()  # mean() to average on multi-gpu parallel training
             if args.gradient_accumulation_steps > 1:
@@ -250,7 +250,7 @@ def evaluate(args, model, tokenizer, eval_task=None, save_output=False):
         all_metrics += auto_scores
     return all_metrics
 
-
+## HJ 여기가 Goal -> Topic -> Item -> Resp 로 Chain of Thought 해주는부분이다
 def pipeline(args, model, tokenizer, save_output=False):
     # results = {}
     eval_dataset = data_reader.load_and_cache_examples(args, tokenizer, evaluate=True)
@@ -260,14 +260,14 @@ def pipeline(args, model, tokenizer, save_output=False):
     all_metrics = []
     all_preds = {}
     for task in ['goal', 'know', 'item', 'resp']:
-        if task == 'goal':
+        if task == 'goal': # HJ: Goal 예측시에는 그대로 가져다가 씀
             task_eval_dataset = eval_dataset[task]
-        else:
+        else: # HJ: 그 이후것들은 이전것을 받아서 오는것 (all_pred)
             task_eval_dataset = data_reader.process_pipeline_data(args, tokenizer, eval_dataset, all_preds, task)
         eval_dataloader = DataLoader(DataFrame(task_eval_dataset, args), batch_size=args.eval_batch_size, shuffle=False,
                                      collate_fn=collate_fn)
         # Eval!
-        logging.info("***** Running evaluation {} *****".format(task))
+        logging.info("***** Pipeline Running evaluation {} *****".format(task))
         logging.info("  Num examples = %d", len(task_eval_dataset))
         logging.info("  Batch size = %d", args.eval_batch_size)
         count = 0
@@ -334,14 +334,14 @@ def pipeline(args, model, tokenizer, save_output=False):
                     if args.gradient_accumulation_steps > 1:
                         loss = loss / args.gradient_accumulation_steps
                     tr_loss.append(loss.item())
-        if save_output:
-            with open(os.path.join(args.output_dir, task, '{}_{}.pipeline'.format(args.data_name, task)),
-                      'w') as outfile, \
-                    open(os.path.join(args.output_dir, task, '{}_{}.reference'.format(args.data_name, task)),
-                         'w') as reffile:
-                for p, t in zip(preds, targets):
-                    outfile.write("{}\n".format(p))
-                    reffile.write("{}\n".format(t))
+        # if save_output:
+        #     with open(os.path.join(args.output_dir, task, '{}_{}.pipeline'.format(args.data_name, task)),
+        #               'w') as outfile, \
+        #             open(os.path.join(args.output_dir, task, '{}_{}.reference'.format(args.data_name, task)),
+        #                  'w') as reffile:
+        #         for p, t in zip(preds, targets):
+        #             outfile.write("{}\n".format(p))
+        #             reffile.write("{}\n".format(t))
 
         all_preds[task] = preds
         auto_scores = metrics.calculate(preds, targets, args.data_name, task, logging)
@@ -356,6 +356,7 @@ def pipeline(args, model, tokenizer, save_output=False):
 
 
 def main():
+
     parser = argparse.ArgumentParser(description="train.py")
 
     ## Required parameters
@@ -447,6 +448,7 @@ def main():
     from platform import system as sysChecker
     if sysChecker() == 'Linux':  # HJ KT-server
         args.do_train, args.do_eval, args.do_finetune, args.overwrite_output_dir = True, True, True, True
+        args.do_pipeline=True
         # args.gpu = '0'
         # args.gpu, args.num_train_epochs, args.num_ft_epochs = '0', 1, 1
         args.per_gpu_train_batch_size, args.per_gpu_eval_batch_size = 32, 32
@@ -458,12 +460,13 @@ def main():
         pass
     elif sysChecker() == "Windows":  # HJ local
         args.do_train, args.do_eval, args.do_finetune, args.overwrite_output_dir = True, True, True, True
+        args.do_pipeline=True
         args.gpu, args.num_train_epochs, args.num_ft_epochs = '0', 1, 1
         args.per_gpu_train_batch_size = 1
-        args.use_cached_data, args.save_tokenized_data = False, False
+        args.use_cached_data, args.save_tokenized_data = True, False
         pass
     else:
-        print("Check Your Platform and use right DataLoader")
+        print("Check Your Platform Setting")
         exit()
 
     args.output_dir = os.path.join(args.output_dir, args.data_name)
@@ -477,7 +480,7 @@ def main():
                         format='%(asctime)s: %(levelname)s: %(message)s',
                         datefmt='%Y/%m/%d_%p_%I:%M:%S ',
                         )
-
+    logging.info('Commend: {}'.format(', '.join(map(str, sys.argv))))
     if os.path.exists(args.output_dir) and os.listdir(
             args.output_dir) and args.do_train and not args.overwrite_output_dir:
         raise ValueError(
@@ -499,7 +502,7 @@ def main():
                                                                 '[profile]', '[history]']})
 
     ft_dataset = data_reader.load_and_cache_examples(args, tokenizer, evaluate=False)
-    train_dataset = data_reader.merge_dataset(ft_dataset)
+    train_dataset = data_reader.merge_dataset(ft_dataset) # train_dataset은 다 때려박아주려고 만드는것이고, ['resp','goal','know','item']을 다 동시에 넣은것 맞음
     item_dict = train_dataset['item_dict']
     args.item_num = len(item_dict)
 
@@ -514,6 +517,8 @@ def main():
 
     # Training
     if args.do_train:
+        logging.info("")
+        logging.info("")
         logging.info(get_time_kst())
         logging.info("do_train")
         global_step, tr_loss = train(args, train_dataset, model, tokenizer)
@@ -528,6 +533,8 @@ def main():
             else:
                 model.load_state_dict(torch.load(os.path.join(output_dir, 'pytorch_model.bin')))
 
+            logging.info("")
+            logging.info("")
             logging.info(get_time_kst())
             logging.info(" Fine-tuning task %s", task)
             global_step, tr_loss = train(args, ft_dataset[task], model, tokenizer, task)
@@ -545,8 +552,11 @@ def main():
                                              map_location=str(args.device).split()[0]))  # HJ
         tokenizer = BertTokenizer.from_pretrained(output_dir, do_lower_case=args.do_lower_case)
         model.to(args.device)
+        logging.info("")
+        logging.info("")
         logging.info(get_time_kst())
-        logging.info(" Fine-tuning task ")
+        logging.info(" Eval task ")
+        logging.info("")
         evaluate(args, model, tokenizer, save_output=True)
 
     # Pipeline Evaluation
@@ -554,8 +564,9 @@ def main():
         tokenizer = BertTokenizer.from_pretrained(output_dir, do_lower_case=args.do_lower_case)
         model.to(args.device)
         pipeline(args, model, tokenizer, save_output=True)
-
-
-if __name__ == "__main__":
-    main()
     logging.info("THE END")
+
+
+if __name__ == "__main__" :
+    # logging.info('Commend: {}'.format(', '.join(map(str, sys.argv))))
+    main()

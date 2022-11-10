@@ -61,6 +61,6 @@ class UniMind(nn.Module):
         if self.training:
             loss_g = outputs[0]
             #loss_r = self.criterion(res, F.one_hot(item_ids, self.item_num).squeeze(1).float())
-            loss_r = self.criterion(res, item_ids.squeeze(1), ignore_index=self.item_num-1)
-            return loss_g + loss_r, res, loss_g
+            loss_r = self.criterion(res, item_ids.squeeze(1), ignore_index=self.item_num-1) # HJ Loss가 nan 이 뜨지 않게 하는법: loss_r = self.criterion(res, item_ids.squeeze(1))
+            return loss_g + loss_r , res, loss_g #TODO Nan 처리 이슈
         return res
