@@ -457,8 +457,8 @@ def main():
         args.cache_dir = '../temp_cache/bart'
         args.data_dir = '/home/work/CRSTEST/UniMIND/data'
         args.use_cached_data, args.save_tokenized_data = False, False
-        args.in_goal_with_goal_seq, args.in_topic_with_goal_seq = args.in_goal_with_goal_seq.upper()[0], \
-                                                                  args.in_topic_with_goal_seq.upper()[0]
+        args.in_goal_with_goal_seq, args.in_topic_with_goal_seq = args.in_goal_with_goal_seq.upper()[0], args.in_topic_with_goal_seq.upper()[0]
+        args.in_topic_with_topic_seq = args.in_topic_with_topic_seq.upper()[0]
         pass
     elif sysChecker() == "Windows":  # HJ local
         args.do_train, args.do_eval, args.do_finetune, args.overwrite_output_dir = False, False, False, True
