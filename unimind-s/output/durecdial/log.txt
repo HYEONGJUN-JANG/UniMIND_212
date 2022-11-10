@@ -1,0 +1,47 @@
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): huggingface.co:443
+DEBUG:urllib3.connectionpool:https://huggingface.co:443 "HEAD /fnlp/bart-base-chinese/resolve/main/config.json HTTP/1.1" 200 0
+DEBUG:filelock:Attempting to acquire lock 2293628899776 on /projdata1/info_fil/ydeng/bert\e0ab1af8221a3166de9abfc42b6eb4275cfe6ee6ee31a99937350dfae50cc659.b46ea2f32c0c0a3eb762ff2b81ebfe0a058025072aa60e54714633acdd9ca36e.lock
+DEBUG:filelock:Lock 2293628899776 acquired on /projdata1/info_fil/ydeng/bert\e0ab1af8221a3166de9abfc42b6eb4275cfe6ee6ee31a99937350dfae50cc659.b46ea2f32c0c0a3eb762ff2b81ebfe0a058025072aa60e54714633acdd9ca36e.lock
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): huggingface.co:443
+DEBUG:urllib3.connectionpool:https://huggingface.co:443 "GET /fnlp/bart-base-chinese/resolve/main/config.json HTTP/1.1" 200 1629
+DEBUG:filelock:Attempting to release lock 2293628899776 on /projdata1/info_fil/ydeng/bert\e0ab1af8221a3166de9abfc42b6eb4275cfe6ee6ee31a99937350dfae50cc659.b46ea2f32c0c0a3eb762ff2b81ebfe0a058025072aa60e54714633acdd9ca36e.lock
+DEBUG:filelock:Lock 2293628899776 released on /projdata1/info_fil/ydeng/bert\e0ab1af8221a3166de9abfc42b6eb4275cfe6ee6ee31a99937350dfae50cc659.b46ea2f32c0c0a3eb762ff2b81ebfe0a058025072aa60e54714633acdd9ca36e.lock
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): huggingface.co:443
+DEBUG:urllib3.connectionpool:https://huggingface.co:443 "HEAD /fnlp/bart-base-chinese/resolve/main/vocab.txt HTTP/1.1" 200 0
+DEBUG:filelock:Attempting to acquire lock 2294217832336 on /projdata1/info_fil/ydeng/bert\feb7fcba07a5cd52dab8daea7c7654f9f450cf4e2586eb946df713da5b44d5e4.accd894ff58c6ff7bd4f3072890776c14f4ea34fcc08e79cd88c2d157756dceb.lock
+DEBUG:filelock:Lock 2294217832336 acquired on /projdata1/info_fil/ydeng/bert\feb7fcba07a5cd52dab8daea7c7654f9f450cf4e2586eb946df713da5b44d5e4.accd894ff58c6ff7bd4f3072890776c14f4ea34fcc08e79cd88c2d157756dceb.lock
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): huggingface.co:443
+DEBUG:urllib3.connectionpool:https://huggingface.co:443 "GET /fnlp/bart-base-chinese/resolve/main/vocab.txt HTTP/1.1" 200 109540
+DEBUG:filelock:Attempting to release lock 2294217832336 on /projdata1/info_fil/ydeng/bert\feb7fcba07a5cd52dab8daea7c7654f9f450cf4e2586eb946df713da5b44d5e4.accd894ff58c6ff7bd4f3072890776c14f4ea34fcc08e79cd88c2d157756dceb.lock
+DEBUG:filelock:Lock 2294217832336 released on /projdata1/info_fil/ydeng/bert\feb7fcba07a5cd52dab8daea7c7654f9f450cf4e2586eb946df713da5b44d5e4.accd894ff58c6ff7bd4f3072890776c14f4ea34fcc08e79cd88c2d157756dceb.lock
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): huggingface.co:443
+DEBUG:urllib3.connectionpool:https://huggingface.co:443 "HEAD /fnlp/bart-base-chinese/resolve/main/added_tokens.json HTTP/1.1" 404 0
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): huggingface.co:443
+DEBUG:urllib3.connectionpool:https://huggingface.co:443 "HEAD /fnlp/bart-base-chinese/resolve/main/special_tokens_map.json HTTP/1.1" 200 0
+DEBUG:filelock:Attempting to acquire lock 2294219545376 on /projdata1/info_fil/ydeng/bert\c7a2ad3ce29650bde9ea8929d9d4414f1472f2eaee89e1700413a60725333838.dd8bd9bfd3664b530ea4e645105f557769387b3da9f79bdb55ed556bdd80611d.lock
+DEBUG:filelock:Lock 2294219545376 acquired on /projdata1/info_fil/ydeng/bert\c7a2ad3ce29650bde9ea8929d9d4414f1472f2eaee89e1700413a60725333838.dd8bd9bfd3664b530ea4e645105f557769387b3da9f79bdb55ed556bdd80611d.lock
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): huggingface.co:443
+DEBUG:urllib3.connectionpool:https://huggingface.co:443 "GET /fnlp/bart-base-chinese/resolve/main/special_tokens_map.json HTTP/1.1" 200 112
+DEBUG:filelock:Attempting to release lock 2294219545376 on /projdata1/info_fil/ydeng/bert\c7a2ad3ce29650bde9ea8929d9d4414f1472f2eaee89e1700413a60725333838.dd8bd9bfd3664b530ea4e645105f557769387b3da9f79bdb55ed556bdd80611d.lock
+DEBUG:filelock:Lock 2294219545376 released on /projdata1/info_fil/ydeng/bert\c7a2ad3ce29650bde9ea8929d9d4414f1472f2eaee89e1700413a60725333838.dd8bd9bfd3664b530ea4e645105f557769387b3da9f79bdb55ed556bdd80611d.lock
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): huggingface.co:443
+DEBUG:urllib3.connectionpool:https://huggingface.co:443 "HEAD /fnlp/bart-base-chinese/resolve/main/tokenizer_config.json HTTP/1.1" 200 0
+DEBUG:filelock:Attempting to acquire lock 2294217831760 on /projdata1/info_fil/ydeng/bert\e8916bb2271881244e34cad9e88d11ef38394196b1d328d76773fde6934c0ef9.4930bdcbc6f75dead7cdeadc249fdb55dcb3cd75bdcee68ee5fcd8aeb6e6e359.lock
+DEBUG:filelock:Lock 2294217831760 acquired on /projdata1/info_fil/ydeng/bert\e8916bb2271881244e34cad9e88d11ef38394196b1d328d76773fde6934c0ef9.4930bdcbc6f75dead7cdeadc249fdb55dcb3cd75bdcee68ee5fcd8aeb6e6e359.lock
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): huggingface.co:443
+DEBUG:urllib3.connectionpool:https://huggingface.co:443 "GET /fnlp/bart-base-chinese/resolve/main/tokenizer_config.json HTTP/1.1" 200 449
+DEBUG:filelock:Attempting to release lock 2294217831760 on /projdata1/info_fil/ydeng/bert\e8916bb2271881244e34cad9e88d11ef38394196b1d328d76773fde6934c0ef9.4930bdcbc6f75dead7cdeadc249fdb55dcb3cd75bdcee68ee5fcd8aeb6e6e359.lock
+DEBUG:filelock:Lock 2294217831760 released on /projdata1/info_fil/ydeng/bert\e8916bb2271881244e34cad9e88d11ef38394196b1d328d76773fde6934c0ef9.4930bdcbc6f75dead7cdeadc249fdb55dcb3cd75bdcee68ee5fcd8aeb6e6e359.lock
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): huggingface.co:443
+DEBUG:urllib3.connectionpool:https://huggingface.co:443 "HEAD /fnlp/bart-base-chinese/resolve/main/tokenizer.json HTTP/1.1" 404 0
+INFO:data_reader:Creating features from dataset file at ../data
+INFO:data_reader:Saving features into cached file ../data\cached_durecdial_train_bart-base-chinese_512_100
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): huggingface.co:443
+DEBUG:urllib3.connectionpool:https://huggingface.co:443 "HEAD /fnlp/bart-base-chinese/resolve/main/pytorch_model.bin HTTP/1.1" 302 0
+DEBUG:filelock:Attempting to acquire lock 2294594745632 on /projdata1/info_fil/ydeng/bert\9032bba23e7bf4f5ef19608e2158df5ceb26f362b42e2b8cf5b07ea175f1c1e9.2251c3a1e4e718fc7d03740d3283002a38b4fb4b94f6f2461c49426385adc6dc.lock
+DEBUG:filelock:Lock 2294594745632 acquired on /projdata1/info_fil/ydeng/bert\9032bba23e7bf4f5ef19608e2158df5ceb26f362b42e2b8cf5b07ea175f1c1e9.2251c3a1e4e718fc7d03740d3283002a38b4fb4b94f6f2461c49426385adc6dc.lock
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): cdn-lfs.huggingface.co:443
+DEBUG:urllib3.connectionpool:https://cdn-lfs.huggingface.co:443 "GET /fnlp/bart-base-chinese/f47b2af68988f741f290fa2a290167733a9cee98467574b1a471fbe572f0b212?response-content-disposition=attachment%3B%20filename%3D%22pytorch_model.bin%22&Expires=1665730190&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jZG4tbGZzLmh1Z2dpbmdmYWNlLmNvL2ZubHAvYmFydC1iYXNlLWNoaW5lc2UvZjQ3YjJhZjY4OTg4Zjc0MWYyOTBmYTJhMjkwMTY3NzMzYTljZWU5ODQ2NzU3NGIxYTQ3MWZiZTU3MmYwYjIxMj9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWF0dGFjaG1lbnQlM0IlMjBmaWxlbmFtZSUzRCUyMnB5dG9yY2hfbW9kZWwuYmluJTIyIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNjY1NzMwMTkwfX19XX0_&Signature=mDe7i3a0TVvtzjhyfdVEQvSuu-nW0F-T8mkQgug69xBTGiKaD6MVB5PYW7aJy-AXg8nRhFW1wSAZEFv~vXiD3Q0iewpA~R0txSJaduwEbR2iTsJ3moZbOXWE1QOnsYSw3r4Ekri7ooLvutZgGDd2-STKJs6u4z8xKsdi09XC27S5DsHX4DlyIwzgdatbtUnP~xYX~CN2sAnuTY0g6kEpHEcI91GxDkqTjlz9aPSP5r7EHoedZQmiFNFXwj6U9SYwWR8eVL9sjWeF-Q7biimAJ3UC-x5LGCpK3CUtPEg5c5tFJJyXxG0Yh9rkh2Wa0p~AyHNnVGl7CYV8vF1m02fpJA__&Key-Pair-Id=KVTP0A1DKRTAX HTTP/1.1" 200 598070940
+DEBUG:filelock:Attempting to release lock 2294594745632 on /projdata1/info_fil/ydeng/bert\9032bba23e7bf4f5ef19608e2158df5ceb26f362b42e2b8cf5b07ea175f1c1e9.2251c3a1e4e718fc7d03740d3283002a38b4fb4b94f6f2461c49426385adc6dc.lock
+DEBUG:filelock:Lock 2294594745632 released on /projdata1/info_fil/ydeng/bert\9032bba23e7bf4f5ef19608e2158df5ceb26f362b42e2b8cf5b07ea175f1c1e9.2251c3a1e4e718fc7d03740d3283002a38b4fb4b94f6f2461c49426385adc6dc.lock
+INFO:root:Training/evaluation parameters Namespace(adam_epsilon=1e-08, beam_size=1, cache_dir='/projdata1/info_fil/ydeng/bert', data_dir='../data', data_name='durecdial', device=device(type='cuda', index=0), device_id=[0, 1, 2], do_eval=False, do_finetune=False, do_lower_case=True, do_pipeline=False, do_train=False, evaluate_during_training=False, gpu='0 1 2', gradient_accumulation_steps=1, gt_task=None, item_num=1622, learning_rate=5e-05, max_grad_norm=1.0, max_seq_length=512, max_target_length=100, model_name_or_path='fnlp/bart-base-chinese', num_ft_epochs=5, num_train_epochs=15, output_dir='output\\durecdial', overwrite_cache=False, overwrite_output_dir=False, per_gpu_eval_batch_size=1, per_gpu_train_batch_size=2, seed=42, warmup_steps=0, weight_decay=0.01)

@@ -44,7 +44,7 @@ class UniMind(nn.Module):
         self.bart = BartForConditionalGeneration.from_pretrained(args.model_name_or_path, from_tf=bool('.ckpt' in args.model_name_or_path),
                     config=config, cache_dir=args.cache_dir)
         d_model = config.d_model
-        self.mlp = MLP(d_model, d_model//4, d_model//2)
+        self.mlp = MLP(d_model, d_model//4, d_model//2) # d -> d//4 -> d//2
         self.classifier = nn.Linear(d_model//4, item_num)
         #self.criterion = F.binary_cross_entropy_with_logits
         self.criterion = F.cross_entropy

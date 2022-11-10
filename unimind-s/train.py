@@ -391,7 +391,7 @@ def main():
 
     parser.add_argument('--seed', type=int, default=42,
                         help="random seed for initialization")
-    parser.add_argument('--gpu', default="0 1 2", type=str,
+    parser.add_argument('--gpu', default="0", type=str,
                         help="Use CUDA on the device.")
     parser.add_argument("--per_gpu_train_batch_size", default=2, type=int,
                         help="Batch size per GPU/CPU for training.")

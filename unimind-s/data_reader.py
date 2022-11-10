@@ -127,7 +127,7 @@ def convert_to_features(args, tokenizer, mode):
 
                 ### prepare goal selection data
                 target_id = tokenizer.encode(utt['goal'])
-                new_source_id = source_goal_id + tokenizer.encode('[goal]')[1:]
+                new_source_id = source_goal_id + tokenizer.encode('[goal]')[1:] # HJ Special Token Prompt [GOAL]
                 source_goal_id += (tokenizer.encode('[goal]' + utt['goal'])[1:] + tokenizer.encode('[{}]'.format(utt['role']) + utt['utterance'])[1:])
                 source_ids.append([101] + new_source_id[-args.max_seq_length+1:])
                 target_ids.append([101] + target_id[-args.max_target_length+1:])
@@ -138,7 +138,7 @@ def convert_to_features(args, tokenizer, mode):
 
                 ### prepare topic prediction data
                 target_id = tokenizer.encode('|'.join(utt['knowledge']))
-                new_source_id = profile_id + source_know_id + tokenizer.encode('[goal]' + utt['goal'])[1:] + tokenizer.encode('[knowledge]')[1:]
+                new_source_id = profile_id + source_know_id + tokenizer.encode('[goal]' + utt['goal'])[1:] + tokenizer.encode('[knowledge]')[1:] # HJ prompt 다음주제예측
                 #new_source_id = profile_id + source_know_id + tokenizer.encode('[knowledge]')[1:]
                 source_know_id += (tokenizer.encode('[knowledge]' + '|'.join(utt['knowledge']))[1:] + tokenizer.encode('[{}]'.format(utt['role']) + utt['utterance'])[1:])
                 source_ids.append([101] + new_source_id[-args.max_seq_length+1:])
@@ -154,7 +154,7 @@ def convert_to_features(args, tokenizer, mode):
                     for item, item_id in zip(utt['item'], utt['item_id']):
                         target_text.append('<'+str(item_id)+'>'+item)
                     target_id = tokenizer.encode('|'.join(target_text))
-                    new_source_id = profile_id + source_id + tokenizer.encode('[goal]' + utt['goal'])[1:] + tokenizer.encode('[knowledge]' + '|'.join(utt['knowledge']))[1:] + tokenizer.encode('[item]')[1:]#  
+                    new_source_id = profile_id + source_id + tokenizer.encode('[goal]' + utt['goal'])[1:] + tokenizer.encode('[knowledge]' + '|'.join(utt['knowledge']))[1:] + tokenizer.encode('[item]')[1:] # HJ item special token prompt
                     item_id = utt['item_id']
                     source_ids.append([101] + new_source_id[-args.max_seq_length+1:])
                     target_ids.append([101] + target_id[-args.max_target_length+1:])
