@@ -58,6 +58,7 @@ def convert_to_features(args, tokenizer, mode):
 
     logger.info('In Goal pred -- With Goal Sequence {}'.format(args.in_goal_with_goal_seq))
     logger.info('In Topic pred -- With Goal Sequence {}'.format(args.in_topic_with_goal_seq))
+    logger.info('In Topic pred -- With Topic Sequence {}'.format(args.in_topic_with_topic_seq))
     with open(path, 'r', encoding='utf-8') as infile:
         max_dia_len = 0
         avg_dia_len = []
