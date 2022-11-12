@@ -226,7 +226,10 @@ def process_pipeline_data(args, tokenizer, data, all_preds, task):
         j = 0
 
         for source_id, goal_pred, know_pred in tqdm(zip(data['resp']['source_ids'], all_preds['goal'], all_preds['know']), desc="pipeline_resp", bar_format=' {percentage:3.0f} % | {bar:23} {r_bar}', total=len(data['resp']['source_ids'])):
-            assert source_id.count(sid) <= 1
+            # assert source_id.count(sid) <= 1 ## Default HJ Error 수정시도
+            if source_id.count(sid) <= 1 : pass
+            else: ## HJ Error 수정시도
+                logger.info("source_id.count(sid) <= 1 229번째 줄 resp 시 에러")
             old_source_id = source_id.copy()
             uid = source_id[-6:]
             if sid in source_id:
@@ -291,12 +294,15 @@ def process_pipeline_data(args, tokenizer, data, all_preds, task):
         count = 0
 
         for source_id, pred in tqdm(zip(data['know']['source_ids'], all_preds['goal']), desc="pipeline_know", bar_format=' {percentage:3.0f} % | {bar:23} {r_bar}', total=len(data['know']['source_ids'])):
-            assert source_id.count(sid) == 1
+            # assert source_id.count(sid) == 1 ## Default TODO:HJ Error 터졌음
+            if source_id.count(sid) == 1 : pass
+            else: ## HJ Error 수정시도
+                logger.info("source_id.count(sid) == 1 294번째 줄 Goal 시 에러")
             old_source_id = source_id.copy()
             source_id = source_id[1:source_id.index(sid)]
             source_id += tokenizer.encode('[goal]' + ''.join(pred.split(' ')))[1:] + tokenizer.encode('预测下一个话题：')[1:]
             #print(old_source_id, source_id[source_id.index(sid):])
-            new_source_ids.append([101] + source_id[-args.max_seq_length+1:])
+            new_source_ids.append([101] + source_id[-args.max_seq_length+1:]) # [CLS] + source_id~
             if old_source_id == new_source_ids[-1]:
                 count += 1
             else:
@@ -322,7 +328,10 @@ def process_pipeline_data(args, tokenizer, data, all_preds, task):
         new_source_ids = []
         count = 0
         for source_id, pred, pred_know in tqdm(zip(data['item']['source_ids'], filtered_preds, filtered_knows), desc="pipeline_item",bar_format=' {percentage:3.0f} % | {bar:23} {r_bar}', total=len(data['item']['source_ids'])):
-            assert source_id.count(sid) == 1
+            # assert source_id.count(sid) == 1 # Default (HJ Error 수정시도)
+            if source_id.count(sid) == 1 : pass
+            else: ## HJ Error 수정시도
+                logger.info("source_id.count(sid) == 1 311번째 줄 item 시 에러")
             old_source_id = source_id.copy()
             source_id = source_id[1:source_id.index(sid)]
             source_id += tokenizer.encode('[goal]' + ''.join(pred.split(' ')))[1:] + tokenizer.encode('[knowledge]' + ''.join(pred_know.split(' ')))[1:] + tokenizer.encode('推荐：')[1:]

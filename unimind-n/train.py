@@ -445,7 +445,9 @@ def main():
                         help="Max gradient norm.")
 
     args = parser.parse_args()
-
+    args.in_goal_with_goal_seq, args.in_topic_with_goal_seq = args.in_goal_with_goal_seq.upper()[0], \
+                                                              args.in_topic_with_goal_seq.upper()[0]
+    args.in_topic_with_topic_seq = args.in_topic_with_topic_seq.upper()[0]
     # HJ Desktop and Server Settings
     from platform import system as sysChecker
     if sysChecker() == 'Linux':  # HJ KT-server
@@ -457,15 +459,15 @@ def main():
         args.cache_dir = '../temp_cache/bart'
         args.data_dir = '/home/work/CRSTEST/UniMIND/data'
         args.use_cached_data, args.save_tokenized_data = False, False
-        args.in_goal_with_goal_seq, args.in_topic_with_goal_seq = args.in_goal_with_goal_seq.upper()[0], args.in_topic_with_goal_seq.upper()[0]
-        args.in_topic_with_topic_seq = args.in_topic_with_topic_seq.upper()[0]
+        args.in_goal_with_goal_seq, args.in_topic_with_goal_seq,args.in_topic_with_topic_seq = 'T','T','T'
         pass
     elif sysChecker() == "Windows":  # HJ local
         args.do_train, args.do_eval, args.do_finetune, args.overwrite_output_dir = False, False, False, True
-        args.do_pipeline=True
+        args.do_pipeline = True
         args.gpu, args.num_train_epochs, args.num_ft_epochs = '0', 1, 1
-        args.per_gpu_train_batch_size = 1
+        args.per_gpu_train_batch_size, args.per_gpu_eval_batch_size = 2, 2
         args.use_cached_data, args.save_tokenized_data = True, False
+        args.in_goal_with_goal_seq, args.in_topic_with_goal_seq, args.in_topic_with_topic_seq = 'T', 'F', 'F'
         pass
     else:
         print("Check Your Platform Setting")
