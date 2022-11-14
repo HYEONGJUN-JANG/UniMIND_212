@@ -224,12 +224,12 @@ def process_pipeline_data(args, tokenizer, data, all_preds, task):
         item_dict = data['item_dict']
         i = 0
         j = 0
-
+        error_resp_count=0
         for source_id, goal_pred, know_pred in tqdm(zip(data['resp']['source_ids'], all_preds['goal'], all_preds['know']), desc="pipeline_resp", bar_format=' {percentage:3.0f} % | {bar:23} {r_bar}', total=len(data['resp']['source_ids'])):
             # assert source_id.count(sid) <= 1 ## Default HJ Error 수정시도
             if source_id.count(sid) <= 1 : pass
             else: ## HJ Error 수정시도
-                logger.info("source_id.count(sid) <= 1 229번째 줄 resp 시 에러")
+                error_resp_count+=1
             old_source_id = source_id.copy()
             uid = source_id[-6:]
             if sid in source_id:
@@ -287,6 +287,7 @@ def process_pipeline_data(args, tokenizer, data, all_preds, task):
                 #print(tokenizer.decode(new_source_ids[-1], skip_special_tokens=True, clean_up_tokenization_spaces=True))
         print(float(count)/len(new_source_ids))
         data['resp']['source_ids'] = new_source_ids
+        logger.info(f"파이프라인 task resp : {error_resp_count} 만큼 resp 에서 sid로 인한 에러 발생(without goalseq 관련")
         return data['resp']
     elif task == 'know': ### HJ: Topic 예측 pipeline :: UserProfile + Dialog + Topic Thread + goal(gt) + [Topic]
         sid = 21128
@@ -294,12 +295,14 @@ def process_pipeline_data(args, tokenizer, data, all_preds, task):
         count = 0
 
         for source_id, pred in tqdm(zip(data['know']['source_ids'], all_preds['goal']), desc="pipeline_know", bar_format=' {percentage:3.0f} % | {bar:23} {r_bar}', total=len(data['know']['source_ids'])):
-            # assert source_id.count(sid) == 1 ## Default TODO:HJ Error 터졌음
-            if source_id.count(sid) == 1 : pass
+            # assert source_id.count(sid) == 1 ## Default TODO:HJ no_goal_seq에서 Error 터졌음
+            if source_id.count(sid) == 1 :
+                old_source_id = source_id.copy()
+                source_id = source_id[1:source_id.index(sid)]
             else: ## HJ Error 수정시도
-                logger.info("source_id.count(sid) == 1 294번째 줄 Goal 시 에러")
-            old_source_id = source_id.copy()
-            source_id = source_id[1:source_id.index(sid)]
+                # logger.info("source_id.count(sid) == 1 294번째 줄 Goal 시 에러")
+                old_source_id = source_id.copy()
+                source_id = source_id[1:list(filter(lambda x : x[1]==102, enumerate(source_id)))[-2][0]+1] # HJ: Goal Seq가 사라진 후, 다음 주제 예측: [SEP]에서 해당부분 삭제
             source_id += tokenizer.encode('[goal]' + ''.join(pred.split(' ')))[1:] + tokenizer.encode('预测下一个话题：')[1:]
             #print(old_source_id, source_id[source_id.index(sid):])
             new_source_ids.append([101] + source_id[-args.max_seq_length+1:]) # [CLS] + source_id~
@@ -328,12 +331,14 @@ def process_pipeline_data(args, tokenizer, data, all_preds, task):
         new_source_ids = []
         count = 0
         for source_id, pred, pred_know in tqdm(zip(data['item']['source_ids'], filtered_preds, filtered_knows), desc="pipeline_item",bar_format=' {percentage:3.0f} % | {bar:23} {r_bar}', total=len(data['item']['source_ids'])):
-            # assert source_id.count(sid) == 1 # Default (HJ Error 수정시도)
-            if source_id.count(sid) == 1 : pass
+            # assert source_id.count(sid) == 1 # Default (TODO:HJ no_goal_seq에서 Error 터졌음)
+            if source_id.count(sid) == 1 :
+                old_source_id = source_id.copy()
+                source_id = source_id[1:source_id.index(sid)]
             else: ## HJ Error 수정시도
-                logger.info("source_id.count(sid) == 1 311번째 줄 item 시 에러")
-            old_source_id = source_id.copy()
-            source_id = source_id[1:source_id.index(sid)]
+                # logger.info("source_id.count(sid) == 1 311번째 줄 item 시 에러")
+                old_source_id = source_id.copy()
+                source_id = source_id[1:list(filter(lambda x : x[1]==102, enumerate(source_id)))[-2][0]+1] # HJ: Goal Seq가 사라진 후, 다음 주제 예측: [SEP]에서 해당부분 삭제
             source_id += tokenizer.encode('[goal]' + ''.join(pred.split(' ')))[1:] + tokenizer.encode('[knowledge]' + ''.join(pred_know.split(' ')))[1:] + tokenizer.encode('推荐：')[1:]
             new_source_ids.append([101] + source_id[-args.max_seq_length+1:])
             if old_source_id == new_source_ids[-1]:
@@ -342,6 +347,6 @@ def process_pipeline_data(args, tokenizer, data, all_preds, task):
                 pass
                 #print(tokenizer.decode(old_source_id, skip_special_tokens=True, clean_up_tokenization_spaces=True))
                 #print(tokenizer.decode(new_source_ids[-1], skip_special_tokens=True, clean_up_tokenization_spaces=True))
-        print(float(count)/len(new_source_ids))
+        print("count가 old_source_id == new_source_ids[-1] 와 연관되어있는데 확인필요",float(count)/len(new_source_ids)) # HJ: Goal seq 사라진 후 처리에서 count 확인
         data['item']['source_ids'] = new_source_ids
         return data['item']
