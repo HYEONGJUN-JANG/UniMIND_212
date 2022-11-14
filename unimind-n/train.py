@@ -455,7 +455,7 @@ def main():
         args.do_pipeline=True
         # args.gpu = '0'
         # args.gpu, args.num_train_epochs, args.num_ft_epochs = '0', 1, 1
-        args.per_gpu_train_batch_size, args.per_gpu_eval_batch_size = 32, 32
+        args.per_gpu_train_batch_size, args.per_gpu_eval_batch_size = 48, 48
         args.cache_dir = '../temp_cache/bart'
         args.data_dir = '/home/work/CRSTEST/UniMIND/data'
         args.use_cached_data, args.save_tokenized_data = False, False
@@ -466,7 +466,7 @@ def main():
         args.do_pipeline = True
         args.gpu, args.num_train_epochs, args.num_ft_epochs = '0', 1, 1
         args.per_gpu_train_batch_size, args.per_gpu_eval_batch_size = 2, 2
-        args.use_cached_data, args.save_tokenized_data = True, False
+        args.use_cached_data, args.save_tokenized_data = False, False
         args.in_goal_with_goal_seq, args.in_topic_with_goal_seq, args.in_topic_with_topic_seq = 'T', 'F', 'F'
         pass
     else:

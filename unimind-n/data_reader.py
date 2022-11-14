@@ -84,13 +84,13 @@ def convert_to_features(args, tokenizer, mode):
 
             first_utt = conv[0]
             if first_utt['role'] == 'user' and args.data_name == 'durecdial': pass # user가 먼저 말했고 durecdial이라면? pass
-            else:
+            else: # # System 이 먼저 말했다면
                 if type(first_utt['goal']) is list:
                     first_utt['goal'] = '|'.join(first_utt['goal'])
                 source_goal_id += tokenizer.encode('[goal]' + first_utt['goal'])[1:]
                 source_know_id += tokenizer.encode('[knowledge]' + '|'.join(first_utt['knowledge']))[1:]
-            source_id += tokenizer.encode('[{}]'.format(first_utt['role']) + first_utt['utterance'])[1:] # [USER]/[SYS] blablabla
-            source_goal_id += tokenizer.encode('[{}]'.format(first_utt['role']) + first_utt['utterance'])[1:] # [USER]/[SYS] blablabla
+            source_id += tokenizer.encode('[{}]'.format(first_utt['role']) + first_utt['utterance'])[1:] # [USER]/[SYS] blablabla [SEP]
+            source_goal_id += tokenizer.encode('[{}]'.format(first_utt['role']) + first_utt['utterance'])[1:] # [USER]/[SYS] blablabla [SEP]
             source_know_id += tokenizer.encode('[{}]'.format(first_utt['role']) + first_utt['utterance'])[1:] # HJ : goal id 와 know id 가 같게된다?
 
             for utt in conv[1:]: # 2번째 대화부터
@@ -99,14 +99,14 @@ def convert_to_features(args, tokenizer, mode):
                     if args.data_name == 'tgredial':
                         source_know_id += tokenizer.encode('[knowledge]' + '|'.join(utt['knowledge']))[1:]
                         source_goal_id += tokenizer.encode('[goal]' + '|'.join(utt['goal']))[1:]
-                    source_know_id += tokenizer.encode('[user]' + utt['utterance'])[1:]
+                    source_know_id += tokenizer.encode('[user]' + utt['utterance'])[1:] # [0] == [CLS] 빼고
                     source_goal_id += tokenizer.encode('[user]' + utt['utterance'])[1:]
                     continue
-                if type(utt['goal']) is list:
+                if type(utt['goal']) is list: # 골이 여러개라면? 한문장으로 붙여넣기
                     utt['goal'] = '|'.join(utt['goal'])
 
                 ### prepare response generation data
-                target_id = tokenizer.encode(utt['utterance'])
+                target_id = tokenizer.encode(utt['utterance']) # System 발화
                 know_len = int(args.max_seq_length/2)
                 if args.data_name == 'tgredial': # 生成回复 == 응답생성 (GPT한테 응답생성하라고 키워드넣는느낌)
                     new_source_id = source_id + tokenizer.encode('[goal]' + utt['goal'])[1:] + tokenizer.encode('[knowledge]')[1:-1] + tokenizer.encode('|'.join(utt['knowledge']))[1:][-know_len:] + tokenizer.encode('[item]' + '|'.join(utt['item']))[1:] + tokenizer.encode('生成回复：')[1:]
@@ -118,7 +118,7 @@ def convert_to_features(args, tokenizer, mode):
 
                 source_ids.append([101] + new_source_id[-args.max_seq_length+1:])
                 target_ids.append([101] + target_id[-args.max_target_length+1:])
-                item_ids.append([len(item_dict)-1])
+                item_ids.append([len(item_dict)-1]) # [PAD]
                 data_dict['resp']['source_ids'].append(source_ids[-1])
                 data_dict['resp']['target_ids'].append(target_ids[-1])
                 data_dict['resp']['item_ids'].append(item_ids[-1])
@@ -189,7 +189,7 @@ def convert_to_features(args, tokenizer, mode):
         #return {'source_ids':source_ids, 'target_ids':target_ids, 'item_ids':item_ids, 'item_dict':item_dict}
         data_dict['item_dict'] = item_dict
         return data_dict
-    else:
+    else: # eval, test??
         data_dict['item_dict'] = item_dict
         data_dict['rec_index'] = rec_index
         return data_dict
@@ -217,7 +217,7 @@ def process_pipeline_data(args, tokenizer, data, all_preds, task):
                 for line in infile:
                     kbs.append(eval(line.strip('\n')))
             assert len(kbs) == len(data['resp']['source_ids'])
-        sid = 21128
+        sid = 21128 # ([101, 21128, 102], '[CLS] [goal] [SEP]')
         new_source_ids = []
         count = 0
         rec_index = data['rec_index']
@@ -288,7 +288,7 @@ def process_pipeline_data(args, tokenizer, data, all_preds, task):
         print(float(count)/len(new_source_ids))
         data['resp']['source_ids'] = new_source_ids
         return data['resp']
-    elif task == 'know':
+    elif task == 'know': ### HJ: Topic 예측 pipeline :: UserProfile + Dialog + Topic Thread + goal(gt) + [Topic]
         sid = 21128
         new_source_ids = []
         count = 0
