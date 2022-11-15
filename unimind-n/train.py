@@ -21,7 +21,7 @@ from datetime import datetime
 import sys
 
 def get_time_kst(): return datetime.now(timezone('Asia/Seoul')).strftime('%Y-%m-%d_%H%M%S')
-
+def getUpperFirst(argtxt): return argtxt.upper()[0]
 
 class DataFrame(Dataset):
     def __init__(self, data, args):
@@ -379,8 +379,12 @@ def main():
                         help="Use cached data (tokenized dataset 활용여부)")  # HJ : Use cached data (tokenized dataset 활용여부)
     parser.add_argument("--save_tokenized_data", default=False, type=bool,
                         help="tokenized dataset 저장여부")  # HJ : tokenized dataset 저장여부
+    parser.add_argument("--goal_input", default='dialog-goal', type=str,
+                        help="tokenizing with goal_sequence")  # HJ : goal예측시 dialog, goal_seq 넣을 지 말지 결정
     parser.add_argument("--in_goal_with_goal_seq", default='T', type=str,
-                        help="tokenizing with goal_sequence")  # HJ : tokenizing with goal_sequence
+                        help="tokenizing with goal_sequence")  # HJ : goal예측시 dialog+goal_seq제공
+    parser.add_argument("--in_goal_only_goal_seq", default='F', type=str,
+                        help="HJ : tokenized with topic_sequence")  # HJ : goal 예측시 goal_sequence만 제공
     parser.add_argument("--in_topic_with_goal_seq", default='T', type=str,
                         help="HJ : tokenized with topic_sequence")  # HJ : in_topic_with_goal_seq tokenized with topic_sequence
     parser.add_argument("--in_topic_with_topic_seq", default='T', type=str,
@@ -445,9 +449,13 @@ def main():
                         help="Max gradient norm.")
 
     args = parser.parse_args()
-    args.in_goal_with_goal_seq, args.in_topic_with_goal_seq = args.in_goal_with_goal_seq.upper()[0], \
-                                                              args.in_topic_with_goal_seq.upper()[0]
-    args.in_topic_with_topic_seq = args.in_topic_with_topic_seq.upper()[0]
+    for i in [args.in_goal_with_goal_seq, args.in_topic_with_goal_seq, args.in_topic_with_topic_seq, args.in_goal_only_goal_seq]:
+        i = getUpperFirst(i)
+    args.goal_input = args.goal_input.lower()
+    # args.in_goal_with_goal_seq, args.in_topic_with_goal_seq = args.in_goal_with_goal_seq.upper()[0], \
+    #                                                           args.in_topic_with_goal_seq.upper()[0]
+    # args.in_topic_with_topic_seq = args.in_topic_with_topic_seq.upper()[0]
+    # args.in_goal_only_goal_seq = args.in_goal_only_goal_seq.upper()[0]
     # HJ Desktop and Server Settings
     from platform import system as sysChecker
     if sysChecker() == 'Linux':  # HJ KT-server
@@ -455,7 +463,7 @@ def main():
         args.do_pipeline=True
         # args.gpu = '0'
         # args.gpu, args.num_train_epochs, args.num_ft_epochs = '0', 1, 1
-        args.per_gpu_train_batch_size, args.per_gpu_eval_batch_size = 48, 48
+        args.per_gpu_train_batch_size, args.per_gpu_eval_batch_size = 56, 56
         args.cache_dir = '../temp_cache/bart'
         args.data_dir = '/home/work/CRSTEST/UniMIND/data'
         args.use_cached_data, args.save_tokenized_data = False, False

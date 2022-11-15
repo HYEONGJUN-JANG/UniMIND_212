@@ -74,7 +74,7 @@ def convert_to_features(args, tokenizer, mode):
             hist_id = know['item_history'] if len(know['item_history'])>0 else [len(item_dict)-1]
             #hist_id = tokenizer.encode('[history]' + '|'.join(['<'+str(x)+'>' for x in know['item_history']]))[1:]
             profile_id = tokenizer.encode('[profile]' + '|'.join(know['user_profile']))[1:]
-
+            ## HJ 첫번째 발화
             first_utt = conv[0]
             if first_utt['role'] == 'user' and args.data_name == 'durecdial': pass # user가 먼저 말했고 durecdial이라면? pass
             else: # # System 이 먼저 말했다면
@@ -82,10 +82,12 @@ def convert_to_features(args, tokenizer, mode):
                     first_utt['goal'] = '|'.join(first_utt['goal'])
                 source_goal_id += tokenizer.encode('[goal]' + first_utt['goal'])[1:]
                 source_know_id += tokenizer.encode('[knowledge]' + '|'.join(first_utt['knowledge']))[1:]
-            source_id += tokenizer.encode('[{}]'.format(first_utt['role']) + first_utt['utterance'])[1:] # [USER]/[SYS] blablabla [SEP]
-            source_goal_id += tokenizer.encode('[{}]'.format(first_utt['role']) + first_utt['utterance'])[1:] # [USER]/[SYS] blablabla [SEP]
-            source_know_id += tokenizer.encode('[{}]'.format(first_utt['role']) + first_utt['utterance'])[1:] # HJ : goal id 와 know id 가 같게된다?
 
+            source_id += tokenizer.encode('[{}]'.format(first_utt['role']) + first_utt['utterance'])[1:] # [USER]/[SYS] blablabla [SEP]
+            if 'dialog' in args.goal_input:
+                source_goal_id += tokenizer.encode('[{}]'.format(first_utt['role']) + first_utt['utterance'])[1:]  # HJ GoalSeq관련처리-1 [USER]/[SYS] blablabla [SEP]
+            source_know_id += tokenizer.encode('[{}]'.format(first_utt['role']) + first_utt['utterance'])[1:] # HJ : goal id 와 know id 가 같게된다?
+            ## HJ 두번째 발화부터
             for utt in conv[1:]: # 2번째 대화부터
                 if utt['role'] == 'user':# and args.data_name == 'durecdial': # User가 말했다면
                     source_id += tokenizer.encode('[user]' + utt['utterance'])[1:]
@@ -93,7 +95,8 @@ def convert_to_features(args, tokenizer, mode):
                         source_know_id += tokenizer.encode('[knowledge]' + '|'.join(utt['knowledge']))[1:]
                         source_goal_id += tokenizer.encode('[goal]' + '|'.join(utt['goal']))[1:]
                     source_know_id += tokenizer.encode('[user]' + utt['utterance'])[1:] # [0] == [CLS] 빼고
-                    source_goal_id += tokenizer.encode('[user]' + utt['utterance'])[1:]
+                    if 'dialog' in args.goal_input: # HJ GoalSeq관련처리-1 [USER]/[SYS] blablabla [SEP]
+                        source_goal_id += tokenizer.encode('[user]' + utt['utterance'])[1:]
                     continue
                 if type(utt['goal']) is list: # 골이 여러개라면? 한문장으로 붙여넣기
                     utt['goal'] = '|'.join(utt['goal'])
@@ -124,10 +127,17 @@ def convert_to_features(args, tokenizer, mode):
                 ### prepare goal selection data
                 target_id = tokenizer.encode(utt['goal'])
                 new_source_id = source_goal_id + tokenizer.encode('计划下一个目标：')[1:] # HJ Natural Language Prompt -- plan the next goal
-                if args.in_goal_with_goal_seq=='T':
-                    source_goal_id += (tokenizer.encode('[goal]' + utt['goal'])[1:] + tokenizer.encode('[{}]'.format(utt['role']) + utt['utterance'])[1:]) # HJ Goal Sequence 를 넣고, Next Goal 예측할때
+
+                if 'dialog' in args.goal_input and 'goal' in args.goal_input: # HJ GoalSeq관련처리-1
+                    source_goal_id += (tokenizer.encode('[goal]' + utt['goal'])[1:] + tokenizer.encode('[{}]'.format(utt['role']) + utt['utterance'])[1:])  # HJ Goal Sequence 를 넣고, Next Goal 예측할때
+                elif 'dialog' in args.goal_input:  # dialog 만 받을때
+                    source_goal_id += (tokenizer.encode('[{}]'.format(utt['role']) + utt['utterance'])[1:])
+                elif 'goal' in args.goal_input:  # goal 만 받을 때
+                    source_goal_id += (tokenizer.encode('[goal]' + utt['goal'])[1:])
                 else:
-                    source_goal_id +=  tokenizer.encode('[{}]'.format(utt['role']) + utt['utterance'])[1:] # HJ Goal Sequence 를 넣지않고, Next Goal 예측할때
+                    print('goal 인풋 체크')
+                    assert 0
+
                 source_ids.append([101] + new_source_id[-args.max_seq_length+1:])
                 target_ids.append([101] + target_id[-args.max_target_length+1:])
                 item_ids.append([len(item_dict)-1])
