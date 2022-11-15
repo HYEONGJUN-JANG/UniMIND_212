@@ -379,8 +379,10 @@ def main():
                         help="Use cached data (tokenized dataset 활용여부)")  # HJ : Use cached data (tokenized dataset 활용여부)
     parser.add_argument("--save_tokenized_data", default=False, type=bool,
                         help="tokenized dataset 저장여부")  # HJ : tokenized dataset 저장여부
+
     parser.add_argument("--goal_input", default='dialog-goal', type=str,
                         help="tokenizing with goal_sequence")  # HJ : goal예측시 dialog, goal_seq 넣을 지 말지 결정
+
     parser.add_argument("--in_topic_with_goal_seq", default='T', type=str,
                         help="HJ : tokenized with topic_sequence")  # HJ : in_topic_with_goal_seq tokenized with topic_sequence
     parser.add_argument("--in_topic_with_topic_seq", default='T', type=str,
