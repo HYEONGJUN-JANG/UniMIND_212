@@ -30,7 +30,7 @@ def load_and_cache_examples(args, tokenizer, evaluate=False):
         print("\nLoaded number of instance:", len(features['resp']['source_ids']))
     else: # 없으면 convert_to_features 함수를 통해 파일 생성 & pkl 파일로 저장
         logger.info("Creating features from dataset file at %s", args.data_dir)
-        features = convert_to_features(args, tokenizer, mode)
+        features = convert_to_features(args, tokenizer, mode) # HJ mode = evaluate일때 test, 아니면 train
         if args.save_tokenized_data:
             print("Loaded number of instance:", len(features['resp']['source_ids']))
             logger.info("Saving features into cached file %s", cached_features_file)
@@ -49,7 +49,7 @@ def convert_to_features(args, tokenizer, mode):
         item_dict[len(item_dict)] = '<PAD>' # item_dict의 맨 마지막에 <PAD> 추가
 
     if args.data_name == 'durecdial': # DuRecDial dataset에 대하여
-        path = os.path.join(args.data_dir, 'kb_{}.jsonl'.format(args.data_name))
+        path = os.path.join(args.data_dir, 'kb_{}.jsonl'.format(args.data_name)) # HJ: outfile = kb_{}.jsonl 인데, 여기에 user profile이 담긴는거같음
         outfile = open(path, 'w', encoding='utf-8')
     path = os.path.join(args.data_dir, '{}/{}.jsonl'.format(args.data_name, mode)) # durecdial/test.jsonl
     print('tokenizing {}'.format(path))
@@ -60,15 +60,8 @@ def convert_to_features(args, tokenizer, mode):
     logger.info('In Topic pred -- With Goal Sequence {}'.format(args.in_topic_with_goal_seq))
     logger.info('In Topic pred -- With Topic Sequence {}'.format(args.in_topic_with_topic_seq))
     with open(path, 'r', encoding='utf-8') as infile:
-        max_dia_len = 0
-        avg_dia_len = []
-        max_res_len = 0
-        avg_res_len = []
-        source_ids = []
-        target_ids = []
-        item_ids = []
-        hist_ids = []
-        rec_index = []
+        max_dia_len,avg_dia_len,max_res_len,avg_res_len = 0,[],0,[]
+        source_ids, target_ids, item_ids, hist_ids, rec_index = [],[],[],[],[]
         i = 0
         for line in tqdm(infile, desc="convert_to_features", bar_format=' {percentage:3.0f} % | {bar:23} {r_bar}'):
             d = eval(line.strip())
@@ -113,7 +106,7 @@ def convert_to_features(args, tokenizer, mode):
                 else:
                     new_source_id = source_id + tokenizer.encode('[goal]' + utt['goal'])[1:] + tokenizer.encode('[knowledge]')[1:-1] + tokenizer.encode('|'.join(utt['know_text']))[1:][-know_len:] + tokenizer.encode('[item]' + '|'.join(utt['item']))[1:] + tokenizer.encode('生成回复：')[1:]
                     if mode == 'test':
-                        outfile.write(str(know['knowledge']) + '\n')
+                        outfile.write(str(know['knowledge']) + '\n') # HJ: outfile = kb_{}.jsonl 인데, 여기에 user profile이 담긴는거같음
 
 
                 source_ids.append([101] + new_source_id[-args.max_seq_length+1:])
@@ -216,7 +209,7 @@ def process_pipeline_data(args, tokenizer, data, all_preds, task):
             with open(path, 'r', encoding='utf-8') as infile:
                 for line in infile:
                     kbs.append(eval(line.strip('\n')))
-            assert len(kbs) == len(data['resp']['source_ids'])
+            assert len(kbs) == len(data['resp']['source_ids']) #HJ kb_{}.jsonl 이 뭔파일이지? User Profile 같기도한데
         sid = 21128 # ([101, 21128, 102], '[CLS] [goal] [SEP]')
         new_source_ids = []
         count = 0
@@ -281,9 +274,9 @@ def process_pipeline_data(args, tokenizer, data, all_preds, task):
             if old_source_id == new_source_ids[-1]:
                 count += 1
             else:
-                #pass
-                print(know_pred)
-                print(tokenizer.decode(old_source_id, skip_special_tokens=True, clean_up_tokenization_spaces=True))
+                pass
+                # print(know_pred)
+                # print(tokenizer.decode(old_source_id, skip_special_tokens=True, clean_up_tokenization_spaces=True))
                 #print(tokenizer.decode(new_source_ids[-1], skip_special_tokens=True, clean_up_tokenization_spaces=True))
         print(float(count)/len(new_source_ids))
         data['resp']['source_ids'] = new_source_ids
