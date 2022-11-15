@@ -56,7 +56,7 @@ def convert_to_features(args, tokenizer, mode):
     #print(tokenizer.SPECIAL_TOKENS_ATTRIBUTES)
     data_dict = {'resp':{'source_ids':[], 'target_ids':[], 'item_ids':[]}, 'item':{'source_ids':[], 'target_ids':[], 'item_ids':[]}, 'goal':{'source_ids':[], 'target_ids':[], 'item_ids':[]}, 'know':{'source_ids':[], 'target_ids':[], 'item_ids':[]}}
 
-    logger.info('In Goal pred -- With Goal Sequence {}'.format(args.in_goal_with_goal_seq))
+    logger.info('In Goal pred -- With Goal Sequence {}'.format(args.goal_input))
     logger.info('In Topic pred -- With Goal Sequence {}'.format(args.in_topic_with_goal_seq))
     logger.info('In Topic pred -- With Topic Sequence {}'.format(args.in_topic_with_topic_seq))
     with open(path, 'r', encoding='utf-8') as infile:

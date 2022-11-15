@@ -381,10 +381,6 @@ def main():
                         help="tokenized dataset 저장여부")  # HJ : tokenized dataset 저장여부
     parser.add_argument("--goal_input", default='dialog-goal', type=str,
                         help="tokenizing with goal_sequence")  # HJ : goal예측시 dialog, goal_seq 넣을 지 말지 결정
-    parser.add_argument("--in_goal_with_goal_seq", default='T', type=str,
-                        help="tokenizing with goal_sequence")  # HJ : goal예측시 dialog+goal_seq제공
-    parser.add_argument("--in_goal_only_goal_seq", default='F', type=str,
-                        help="HJ : tokenized with topic_sequence")  # HJ : goal 예측시 goal_sequence만 제공
     parser.add_argument("--in_topic_with_goal_seq", default='T', type=str,
                         help="HJ : tokenized with topic_sequence")  # HJ : in_topic_with_goal_seq tokenized with topic_sequence
     parser.add_argument("--in_topic_with_topic_seq", default='T', type=str,
@@ -449,7 +445,7 @@ def main():
                         help="Max gradient norm.")
 
     args = parser.parse_args()
-    for i in [args.in_goal_with_goal_seq, args.in_topic_with_goal_seq, args.in_topic_with_topic_seq, args.in_goal_only_goal_seq]:
+    for i in [args.in_topic_with_goal_seq, args.in_topic_with_topic_seq]:
         i = getUpperFirst(i)
     args.goal_input = args.goal_input.lower()
     # args.in_goal_with_goal_seq, args.in_topic_with_goal_seq = args.in_goal_with_goal_seq.upper()[0], \
