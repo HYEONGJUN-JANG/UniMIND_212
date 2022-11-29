@@ -419,7 +419,6 @@ def main():
     from platform import system as sysChecker
     if sysChecker() == 'Linux':  # HJ KT-server
         args.do_train, args.do_eval, args.do_finetune, args.overwrite_output_dir = True, True, True, True
-        args.do_pipeline=True
         # args.gpu = '0'
         # args.gpu, args.num_train_epochs, args.num_ft_epochs = '0', 1, 1
         args.per_gpu_train_batch_size, args.per_gpu_eval_batch_size = 56, 56
@@ -438,6 +437,7 @@ def main():
         args.use_cached_data, args.save_tokenized_data = False, False
         args.in_goal_with_goal_seq, args.in_topic_with_goal_seq, args.in_topic_with_topic_seq = 'T', 'T', 'T'
         args.goal_prompt_idea = 1
+        args.goal_prompt_idea1_order = 'gu'
         pass
     else:
         print("Check Your Platform Setting")
