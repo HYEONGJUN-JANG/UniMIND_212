@@ -23,6 +23,7 @@ def convert_to_features_goalPromptidea1_2_3(args, tokenizer, mode):
     data_dict = {'resp':{'source_ids':[], 'target_ids':[], 'item_ids':[]}, 'item':{'source_ids':[], 'target_ids':[], 'item_ids':[]}, 'goal':{'source_ids':[], 'target_ids':[], 'item_ids':[]}, 'know':{'source_ids':[], 'target_ids':[], 'item_ids':[]}}
 
     logger.info('convert_to_features_goal Prompt idea1 사용')
+    if args.goal_instruction: logger.info('Goal instruction 사용')
     logger.info('In Goal pred -- With Goal Sequence :: {}'.format(args.goal_input))
     logger.info('In Topic pred -- With Goal Sequence :: {}'.format(args.in_topic_with_goal_seq))
     logger.info('In Topic pred -- With Topic Sequence :: {}'.format(args.in_topic_with_topic_seq))
