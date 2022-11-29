@@ -450,10 +450,7 @@ def main():
     for i in [args.in_topic_with_goal_seq, args.in_topic_with_topic_seq]:
         i = getUpperFirst(i)
     args.goal_input = args.goal_input.lower()
-    # args.in_goal_with_goal_seq, args.in_topic_with_goal_seq = args.in_goal_with_goal_seq.upper()[0], \
-    #                                                           args.in_topic_with_goal_seq.upper()[0]
-    # args.in_topic_with_topic_seq = args.in_topic_with_topic_seq.upper()[0]
-    # args.in_goal_only_goal_seq = args.in_goal_only_goal_seq.upper()[0]
+
     # HJ Desktop and Server Settings
     from platform import system as sysChecker
     if sysChecker() == 'Linux':  # HJ KT-server
@@ -465,7 +462,7 @@ def main():
         args.cache_dir = '../temp_cache/bart'
         args.data_dir = '/home/work/CRSTEST/UniMIND/data'
         args.use_cached_data, args.save_tokenized_data = False, False
-        # args.in_goal_with_goal_seq, args.in_topic_with_goal_seq,args.in_topic_with_topic_seq = 'T','T','T'
+        args.in_goal_with_goal_seq, args.in_topic_with_goal_seq,args.in_topic_with_topic_seq = 'T','T','T'
         pass
     elif sysChecker() == "Windows":  # HJ local
         args.do_train, args.do_eval, args.do_finetune, args.overwrite_output_dir = False, False, False, True
@@ -506,8 +503,7 @@ def main():
     utils.set_seed(args.seed)
 
     config = BartConfig.from_pretrained(args.model_name_or_path, cache_dir=args.cache_dir)
-    tokenizer = BertTokenizer.from_pretrained(args.model_name_or_path, do_lower_case=args.do_lower_case,
-                                              cache_dir=args.cache_dir)
+    tokenizer = BertTokenizer.from_pretrained(args.model_name_or_path, do_lower_case=args.do_lower_case, cache_dir=args.cache_dir)
     tokenizer.add_special_tokens({'additional_special_tokens': ['[goal]', '[user]', '[system]', '[knowledge]', '[item]',
                                                                 '[profile]', '[history]']})
 
@@ -558,8 +554,7 @@ def main():
             model.module.load_state_dict(torch.load(os.path.join(output_dir, 'pytorch_model.bin')))
         else:
             # model.load_state_dict(torch.load(os.path.join(output_dir, 'pytorch_model.bin'))) # Default
-            model.load_state_dict(torch.load(os.path.join(output_dir, 'pytorch_model.bin'),
-                                             map_location=str(args.device).split()[0]))  # HJ
+            model.load_state_dict(torch.load(os.path.join(output_dir, 'pytorch_model.bin'), map_location=str(args.device).split()[0]))  # HJ
         tokenizer = BertTokenizer.from_pretrained(output_dir, do_lower_case=args.do_lower_case)
         model.to(args.device)
         logging.info("")

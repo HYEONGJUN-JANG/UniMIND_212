@@ -17,6 +17,7 @@ def process_pipeline_know(args, tokenizer, data, all_preds, task='know'): # Topi
         if source_id.count(sid) == 1:
             old_source_id = source_id.copy()
             source_id = source_id[1:source_id.index(sid)]
+
         else:  ## HJ Error 수정시도
             # logger.info("source_id.count(sid) == 1 294번째 줄 Goal 시 에러")
             old_source_id = source_id.copy()

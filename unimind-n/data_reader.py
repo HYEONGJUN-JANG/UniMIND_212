@@ -3,6 +3,7 @@ import logging
 import torch
 import pickle
 from tqdm import tqdm
+import data_util
 logger = logging.getLogger(__name__)
 
 def write_pkl(obj, filename):
