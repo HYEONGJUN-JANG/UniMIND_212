@@ -3,7 +3,7 @@ from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
 
-def convert_to_features_goalPromptidea1(args, tokenizer, mode):
+def convert_to_features_goalPromptidea1_2_3(args, tokenizer, mode):
     '''
     dialog + goal seq를 섞어넣는것이 아닌, dialog만 넣고, goal seq를 뒤에 쭈르륵 넣는식
     '''
@@ -38,7 +38,7 @@ def convert_to_features_goalPromptidea1(args, tokenizer, mode):
             target_id = []
             hist_id = know['item_history'] if len(know['item_history'])>0 else [len(item_dict)-1]
             profile_id = tokenizer.encode('[profile]' + '|'.join(know['user_profile']))[1:]
-            goal_devided=[] # HJ: Goal sequence 분리용
+            # HJ: Goal sequence 분리용
             gs_goal_list=[]
             gs_utt_list=[]
             ## HJ 첫번째 발화
@@ -57,7 +57,7 @@ def convert_to_features_goalPromptidea1(args, tokenizer, mode):
             source_know_id += tokenizer.encode('[{}]'.format(first_utt['role']) + first_utt['utterance'])[1:] # HJ : goal id 와 know id 가 같게된다?
             ## HJ 두번째 발화부터
             for utt in conv[1:]: # 2번째 대화부터
-                if utt['role'] == 'user':# and args.data_name == 'durecdial': # User가 말했다면
+                if utt['role'] == 'user': # and args.data_name == 'durecdial': # User가 말했다면
                     source_id += tokenizer.encode('[user]' + utt['utterance'])[1:]
                     if args.data_name == 'tgredial':
                         source_know_id += tokenizer.encode('[knowledge]' + '|'.join(utt['knowledge']))[1:]
@@ -96,15 +96,25 @@ def convert_to_features_goalPromptidea1(args, tokenizer, mode):
                 ### prepare goal selection data
                 target_id = tokenizer.encode(utt['goal'])
                 # new_source_id = source_goal_id + tokenizer.encode('计划下一个目标：')[1:] # HJ Natural Language Prompt -- plan the next goal
-
-                # HJ 현재까지 진행된 utt, goal 처리해서 new_source_id 생성
-                if args.goal_prompt_idea1_order == 'ug':
-                    new_source_id = gs_utt_list + gs_goal_list + tokenizer.encode('计划下一个目标：')[1:] #HJ Utterance~~ + Goal~~ + plan the next goal
-                elif args.goal_prompt_idea1_order =='gu':
-                    new_source_id = gs_goal_list + gs_utt_list + tokenizer.encode('计划下一个目标：')[1:] #HJ Utterance~~ + Goal~~ + plan the next goal
+                if args.goal_instruction:
+                    if args.goal_prompt_idea1_order == 'ug':
+                        if gs_goal_list: new_source_id = gs_utt_list + + gs_goal_list + tokenizer.encode('计划下一个目标：')[1:]  # HJ Utterance~~ + Goal~~ + plan the next goal
+                        else: new_source_id = gs_utt_list + tokenizer.encode('计划下一个目标：')[1:]  # HJ Utterance~~ + Goal~~ + plan the next goal
+                    elif args.goal_prompt_idea1_order == 'gu':
+                        if gs_goal_list: new_source_id = gs_goal_list + gs_utt_list + tokenizer.encode('计划下一个目标：')[1:]  # HJ Utterance~~ + Goal~~ + plan the next goal
+                        else: new_source_id = gs_utt_list + tokenizer.encode('计划下一个目标：')[1:]  # HJ Utterance~~ + Goal~~ + plan the next goal
+                    else:
+                        print("Check goal prompt idea1 order"); assert 0
                 else:
-                    print("Chech goal prompt idea1 order")
-                    assert 0
+                    if args.goal_prompt_idea1_order == 'ug':
+                        if gs_goal_list: new_source_id = tokenizer.encode('对话如此时：')[1:] + gs_utt_list + tokenizer.encode('目标顺序如此时：')[1:] + gs_goal_list + tokenizer.encode('计划下一个目标：')[1:] #HJ Utterance~~ + Goal~~ + plan the next goal
+                        else: new_source_id = tokenizer.encode('对话如此时：')[1:] + gs_utt_list +  tokenizer.encode('计划下一个目标：')[1:] #HJ Utterance~~ + Goal~~ + plan the next goal
+                    elif args.goal_prompt_idea1_order =='gu':
+                        if gs_goal_list: new_source_id = tokenizer.encode('目标顺序如此时：')[1:] + gs_goal_list + tokenizer.encode('对话如此时：')[1:] + gs_utt_list + tokenizer.encode('计划下一个目标：')[1:] #HJ Utterance~~ + Goal~~ + plan the next goal
+                        else: new_source_id = tokenizer.encode('对话如此时：')[1:] + gs_utt_list + tokenizer.encode('计划下一个目标：')[1:] #HJ Utterance~~ + Goal~~ + plan the next goal
+                    else: print("Check goal prompt idea1 order"); assert 0
+                    pass
+                # HJ 현재까지 진행된 utt, goal 처리해서 new_source_id 생성
 
                 if 'dialog' in args.goal_input and 'goal' in args.goal_input: # HJ GoalSeq관련처리-1
                     gs_goal_list += tokenizer.encode('[goal]' + utt['goal'])[1:]

@@ -373,6 +373,7 @@ def main():
 
     parser.add_argument("--goal_input", default='dialog-goal', type=str,help="tokenizing with goal_sequence")  # HJ : goal예측시 dialog, goal_seq 넣을 지 말지 결정
     parser.add_argument("--goal_prompt_idea", default='0', type=int, help="goal prompt idea")  # HJ : goalprompt idea
+    parser.add_argument("--goal_instruction", action='store_true',help="Whether to use goal instruction.")  # HJ : goalprompt idea - 2 : instruction
     parser.add_argument("--goal_prompt_idea1_order", default='ug', type=str, help="goal prompt idea order -- utt+goal or goal+urr")  # HJ : goalprompt idea
 
     parser.add_argument("--in_topic_with_goal_seq", default='T', type=str,help="HJ : tokenized with topic_sequence")  # HJ : in_topic_with_goal_seq tokenized with topic_sequence
@@ -383,8 +384,8 @@ def main():
     # parser.add_argument("--do_pure_generate", action='store_true', help="Whether to use original model.")
     parser.add_argument("--do_train", action='store_true',help="Whether to run training.")
     parser.add_argument("--do_eval", action='store_true',help="Whether to run eval.")
-    parser.add_argument("--do_pipeline", action='store_true',help="Whether to run pipeline eval.")
     parser.add_argument("--do_finetune", action='store_true',help="Whether to run finetune.")
+    parser.add_argument("--do_pipeline", action='store_true',help="Whether to run pipeline eval.")
     parser.add_argument("--evaluate_during_training", action='store_true',help="Rul evaluation during training at each logging step.")
     # parser.add_argument('--logging_steps', type=int, default=500,help="Log every X updates steps.")
     # parser.add_argument('--save_steps', type=int, default=2000, help="Save checkpoint every X updates steps.")
@@ -437,7 +438,7 @@ def main():
         args.use_cached_data, args.save_tokenized_data = False, False
         args.in_goal_with_goal_seq, args.in_topic_with_goal_seq, args.in_topic_with_topic_seq = 'T', 'T', 'T'
         args.goal_prompt_idea = 1
-        args.goal_prompt_idea1_order = 'gu'
+        args.goal_prompt_idea1_order = 'ug'
         pass
     else:
         print("Check Your Platform Setting")

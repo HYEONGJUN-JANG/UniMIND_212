@@ -31,10 +31,11 @@ def load_and_cache_examples(args, tokenizer, evaluate=False):
         print("\nLoaded number of instance:", len(features['resp']['source_ids']))
     else: # 없으면 convert_to_features 함수를 통해 파일 생성 & pkl 파일로 저장
         logger.info("Creating features from dataset file at %s", args.data_dir)
-        if args.goal_prompt_idea == 1: features = data_util.convert_to_features_goalPromptidea1(args,tokenizer,mode)
-        elif args.goal_prompt_idea == 2: features = data_util.convert_to_features_goalPromptidea1(args,tokenizer,mode) # HJ mode = evaluate일때 test, 아니면 train
-        elif args.goal_prompt_idea == 3: features = data_util.convert_to_features_goalPromptidea1(args,tokenizer,mode) # HJ mode = evaluate일때 test, 아니면 train
+        if args.goal_prompt_idea >= 1 : features = data_util.convert_to_features_goalPromptidea1_2_3(args,tokenizer,mode)
+        # elif args.goal_prompt_idea == 2: features = data_util.convert_to_features_goalPromptidea2_instruction(args,tokenizer,mode) # HJ mode = evaluate일때 test, 아니면 train
+        # elif args.goal_prompt_idea == 3: features = data_util.convert_to_features_goalPromptidea1(args,tokenizer,mode) # HJ mode = evaluate일때 test, 아니면 train
         else:  features = convert_to_features(args, tokenizer, mode) # HJ Default
+
         if args.save_tokenized_data:
             print("Loaded number of instance:", len(features['resp']['source_ids']))
             logger.info("Saving features into cached file %s", cached_features_file)
