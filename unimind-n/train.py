@@ -360,91 +360,55 @@ def main():
     parser = argparse.ArgumentParser(description="train.py")
 
     ## Required parameters
-    parser.add_argument('--data_name', default='durecdial', type=str,
-                        help="dataset name")
-    parser.add_argument("--model_name_or_path", default='fnlp/bart-base-chinese',
-                        type=str, help="model name or path")
-    parser.add_argument("--output_dir", default='output', type=str,
-                        help="The output directory where the model predictions and checkpoints will be written.")
-    parser.add_argument("--data_dir", default='../data', type=str,
-                        help="The data directory.")
-    parser.add_argument("--cache_dir", default='../temp_cache/bart', type=str,  # /projdata1/info_fil/ydeng/bert
-                        help="The cache directory.")
+    parser.add_argument('--data_name', default='durecdial', type=str,help="dataset name")
+    parser.add_argument("--model_name_or_path", default='fnlp/bart-base-chinese',type=str, help="model name or path")
+    parser.add_argument("--output_dir", default='output', type=str,help="The output directory where the model predictions and checkpoints will be written.")
+    parser.add_argument("--data_dir", default='../data', type=str,help="The data directory.")
+    parser.add_argument("--cache_dir", default='../temp_cache/bart', type=str, help="The cache directory.") # /projdata1/info_fil/ydeng/bert
     # HJ 특별추가 Parameters
-    parser.add_argument("--log_name", default='', type=str,
-                        help="Log fileName")  # HJ : Log file middle Name
-    parser.add_argument("--log_dir", default='output/logs', type=str,
-                        help="Log dir")  # HJ : Log dir
-    parser.add_argument("--use_cached_data", default=False, type=bool,
-                        help="Use cached data (tokenized dataset 활용여부)")  # HJ : Use cached data (tokenized dataset 활용여부)
-    parser.add_argument("--save_tokenized_data", default=False, type=bool,
-                        help="tokenized dataset 저장여부")  # HJ : tokenized dataset 저장여부
+    parser.add_argument("--log_name", default='', type=str,help="Log fileName")  # HJ : Log file middle Name
+    parser.add_argument("--log_dir", default='output/logs', type=str,help="Log dir")  # HJ : Log dir
+    parser.add_argument("--use_cached_data", default=False, type=bool,help="Use cached data (tokenized dataset 활용여부)")  # HJ : Use cached data (tokenized dataset 활용여부)
+    parser.add_argument("--save_tokenized_data", default=False, type=bool,help="tokenized dataset 저장여부")  # HJ : tokenized dataset 저장여부
 
-    parser.add_argument("--goal_input", default='dialog-goal', type=str,
-                        help="tokenizing with goal_sequence")  # HJ : goal예측시 dialog, goal_seq 넣을 지 말지 결정
+    parser.add_argument("--goal_input", default='dialog-goal', type=str,help="tokenizing with goal_sequence")  # HJ : goal예측시 dialog, goal_seq 넣을 지 말지 결정
+    parser.add_argument("--goal_prompt_idea", default='0', type=int, help="goal prompt idea")  # HJ : goalprompt idea
+    parser.add_argument("--goal_prompt_idea1_order", default='ug', type=str, help="goal prompt idea order -- utt+goal or goal+urr")  # HJ : goalprompt idea
 
-    parser.add_argument("--in_topic_with_goal_seq", default='T', type=str,
-                        help="HJ : tokenized with topic_sequence")  # HJ : in_topic_with_goal_seq tokenized with topic_sequence
-    parser.add_argument("--in_topic_with_topic_seq", default='T', type=str,
-                        help="HJ : tokenized with topic_sequence")  # HJ : in_topic_with_topic_seq tokenized with topic_sequence
+    parser.add_argument("--in_topic_with_goal_seq", default='T', type=str,help="HJ : tokenized with topic_sequence")  # HJ : in_topic_with_goal_seq tokenized with topic_sequence
+    parser.add_argument("--in_topic_with_topic_seq", default='T', type=str,help="HJ : tokenized with topic_sequence")  # HJ : in_topic_with_topic_seq tokenized with topic_sequence
 
     ## Other parameters
 
-    # parser.add_argument("--do_pure_generate", action='store_true',
-    #                    help="Whether to use original model.")
-    parser.add_argument("--do_train", action='store_true',
-                        help="Whether to run training.")
-    parser.add_argument("--do_eval", action='store_true',
-                        help="Whether to run eval.")
-    parser.add_argument("--do_pipeline", action='store_true',
-                        help="Whether to run pipeline eval.")
-    parser.add_argument("--do_finetune", action='store_true',
-                        help="Whether to run finetune.")
-    parser.add_argument("--evaluate_during_training", action='store_true',
-                        help="Rul evaluation during training at each logging step.")
-    # parser.add_argument('--logging_steps', type=int, default=500,
-    #                    help="Log every X updates steps.")
-    # parser.add_argument('--save_steps', type=int, default=2000,
-    #                    help="Save checkpoint every X updates steps.")
-    parser.add_argument('--overwrite_output_dir', action='store_true',
-                        help="Overwrite the content of the output directory")
-    parser.add_argument('--overwrite_cache', action='store_true',
-                        help="Overwrite the cached training and evaluation sets")
-    parser.add_argument("--do_lower_case", action='store_false',
-                        help="Set this flag if you are using an uncased model.")
-    parser.add_argument("--max_seq_length", default=512, type=int,
-                        help="The maximum total input sequence length after tokenization. Sequences longer "
-                             "than this will be truncated, sequences shorter will be padded.")
-    parser.add_argument("--max_target_length", default=100, type=int,
-                        help="The maximum total output sequence length.")
+    # parser.add_argument("--do_pure_generate", action='store_true', help="Whether to use original model.")
+    parser.add_argument("--do_train", action='store_true',help="Whether to run training.")
+    parser.add_argument("--do_eval", action='store_true',help="Whether to run eval.")
+    parser.add_argument("--do_pipeline", action='store_true',help="Whether to run pipeline eval.")
+    parser.add_argument("--do_finetune", action='store_true',help="Whether to run finetune.")
+    parser.add_argument("--evaluate_during_training", action='store_true',help="Rul evaluation during training at each logging step.")
+    # parser.add_argument('--logging_steps', type=int, default=500,help="Log every X updates steps.")
+    # parser.add_argument('--save_steps', type=int, default=2000, help="Save checkpoint every X updates steps.")
+    parser.add_argument('--overwrite_output_dir', action='store_true',help="Overwrite the content of the output directory")
+    parser.add_argument('--overwrite_cache', action='store_true',help="Overwrite the cached training and evaluation sets")
+    parser.add_argument("--do_lower_case", action='store_false',help="Set this flag if you are using an uncased model.")
+    parser.add_argument("--max_seq_length", default=512, type=int,help="The maximum total input sequence length after tokenization. Sequences longer " "than this will be truncated, sequences shorter will be padded.")
+    parser.add_argument("--max_target_length", default=100, type=int,help="The maximum total output sequence length.")
     parser.add_argument('--beam_size', default=1, type=int)
 
-    parser.add_argument('--seed', type=int, default=42,
-                        help="random seed for initialization")
-    parser.add_argument('--gpu', default="0", type=str,
-                        help="Use CUDA on the device.")
-    parser.add_argument("--per_gpu_train_batch_size", default=64, type=int,
-                        help="Batch size per GPU/CPU for training.")
-    parser.add_argument("--per_gpu_eval_batch_size", default=64, type=int,
-                        help="Batch size per GPU/CPU for evaluation.")
-    parser.add_argument("--num_train_epochs", default=15, type=float,
-                        help="Total number of training epochs to perform.")
-    parser.add_argument("--num_ft_epochs", default=5, type=float,
-                        help="Total number of finetuning epochs to perform.")
+    parser.add_argument('--seed', type=int, default=42,help="random seed for initialization")
+    parser.add_argument('--gpu', default="0", type=str,help="Use CUDA on the device.")
+    parser.add_argument("--per_gpu_train_batch_size", default=64, type=int,help="Batch size per GPU/CPU for training.")
+    parser.add_argument("--per_gpu_eval_batch_size", default=64, type=int,help="Batch size per GPU/CPU for evaluation.")
+    parser.add_argument("--num_train_epochs", default=15, type=float,help="Total number of training epochs to perform.")
+    parser.add_argument("--num_ft_epochs", default=5, type=float,help="Total number of finetuning epochs to perform.")
     # parser.add_argument("--max_steps", default=-1, type=int,
     #                    help="If > 0: set total number of training steps to perform. Override num_train_epochs.")
-    parser.add_argument('--gradient_accumulation_steps', type=int, default=1,
-                        help="Number of updates steps to accumulate before performing a backward/update pass.")
-    parser.add_argument("--warmup_steps", default=0, type=int,
-                        help="Linear warmup over warmup_steps.")
-    parser.add_argument("--learning_rate", default=5e-5, type=float,
-                        help="The initial learning rate for Adam.")
-    parser.add_argument("--weight_decay", default=0.01, type=float,
-                        help="Weight decay if we apply some.")
-    parser.add_argument("--adam_epsilon", default=1e-8, type=float,
-                        help="Epsilon for Adam optimizer.")
-    parser.add_argument("--max_grad_norm", default=1.0, type=float,
-                        help="Max gradient norm.")
+    parser.add_argument('--gradient_accumulation_steps', type=int, default=1,help="Number of updates steps to accumulate before performing a backward/update pass.")
+    parser.add_argument("--warmup_steps", default=0, type=int,help="Linear warmup over warmup_steps.")
+    parser.add_argument("--learning_rate", default=5e-5, type=float,help="The initial learning rate for Adam.")
+    parser.add_argument("--weight_decay", default=0.01, type=float,help="Weight decay if we apply some.")
+    parser.add_argument("--adam_epsilon", default=1e-8, type=float,help="Epsilon for Adam optimizer.")
+    parser.add_argument("--max_grad_norm", default=1.0, type=float, help="Max gradient norm.")
 
     args = parser.parse_args()
     for i in [args.in_topic_with_goal_seq, args.in_topic_with_topic_seq]:
@@ -463,6 +427,7 @@ def main():
         args.data_dir = '/home/work/CRSTEST/UniMIND/data'
         args.use_cached_data, args.save_tokenized_data = False, False
         args.in_goal_with_goal_seq, args.in_topic_with_goal_seq,args.in_topic_with_topic_seq = 'T','T','T'
+        args.goal_prompt_idea = 1 # goal-seq넣는순서 쭈르륵
         pass
     elif sysChecker() == "Windows":  # HJ local
         args.do_train, args.do_eval, args.do_finetune, args.overwrite_output_dir = False, False, False, True
@@ -470,7 +435,8 @@ def main():
         args.gpu, args.num_train_epochs, args.num_ft_epochs = '0', 1, 1
         args.per_gpu_train_batch_size, args.per_gpu_eval_batch_size = 2, 2
         args.use_cached_data, args.save_tokenized_data = False, False
-        args.in_goal_with_goal_seq, args.in_topic_with_goal_seq, args.in_topic_with_topic_seq = 'T', 'F', 'F'
+        args.in_goal_with_goal_seq, args.in_topic_with_goal_seq, args.in_topic_with_topic_seq = 'T', 'T', 'T'
+        args.goal_prompt_idea = 1
         pass
     else:
         print("Check Your Platform Setting")
@@ -504,8 +470,7 @@ def main():
 
     config = BartConfig.from_pretrained(args.model_name_or_path, cache_dir=args.cache_dir)
     tokenizer = BertTokenizer.from_pretrained(args.model_name_or_path, do_lower_case=args.do_lower_case, cache_dir=args.cache_dir)
-    tokenizer.add_special_tokens({'additional_special_tokens': ['[goal]', '[user]', '[system]', '[knowledge]', '[item]',
-                                                                '[profile]', '[history]']})
+    tokenizer.add_special_tokens({'additional_special_tokens': ['[goal]', '[user]', '[system]', '[knowledge]', '[item]','[profile]', '[history]']})
 
     ft_dataset = data_reader.load_and_cache_examples(args, tokenizer, evaluate=False)
     train_dataset = data_reader.merge_dataset(ft_dataset) # train_dataset은 다 때려박아주려고 만드는것이고, ['resp','goal','know','item']을 다 동시에 넣은것 맞음

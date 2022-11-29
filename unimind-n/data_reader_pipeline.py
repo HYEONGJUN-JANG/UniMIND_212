@@ -21,8 +21,7 @@ def process_pipeline_know(args, tokenizer, data, all_preds, task='know'): # Topi
         else:  ## HJ Error 수정시도
             # logger.info("source_id.count(sid) == 1 294번째 줄 Goal 시 에러")
             old_source_id = source_id.copy()
-            source_id = source_id[1:list(filter(lambda x: x[1] == 102, enumerate(source_id)))[-2][
-                                        0] + 1]  # HJ: Goal Seq가 사라진 후, 다음 주제 예측: [SEP]에서 해당부분 삭제
+            source_id = source_id[1:list(filter(lambda x: x[1] == 102, enumerate(source_id)))[-2][0] + 1]  # HJ: Goal Seq가 사라진 후, 다음 주제 예측: [SEP]에서 해당부분 삭제
         source_id += tokenizer.encode('[goal]' + ''.join(pred.split(' ')))[1:] + tokenizer.encode('预测下一个话题：')[1:]
         # print(old_source_id, source_id[source_id.index(sid):])
         new_source_ids.append([101] + source_id[-args.max_seq_length + 1:])  # [CLS] + source_id~
