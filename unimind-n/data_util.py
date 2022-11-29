@@ -99,7 +99,7 @@ def convert_to_features_goalPromptidea1_2_3(args, tokenizer, mode):
                 # new_source_id = source_goal_id + tokenizer.encode('计划下一个目标：')[1:] # HJ Natural Language Prompt -- plan the next goal
                 if args.goal_instruction:
                     if args.goal_prompt_idea1_order == 'ug':
-                        if gs_goal_list: new_source_id = gs_utt_list + + gs_goal_list + tokenizer.encode('计划下一个目标：')[1:]  # HJ Utterance~~ + Goal~~ + plan the next goal
+                        if gs_goal_list: new_source_id = gs_utt_list + gs_goal_list + tokenizer.encode('计划下一个目标：')[1:]  # HJ Utterance~~ + Goal~~ + plan the next goal
                         else: new_source_id = gs_utt_list + tokenizer.encode('计划下一个目标：')[1:]  # HJ Utterance~~ + Goal~~ + plan the next goal
                     elif args.goal_prompt_idea1_order == 'gu':
                         if gs_goal_list: new_source_id = gs_goal_list + gs_utt_list + tokenizer.encode('计划下一个目标：')[1:]  # HJ Utterance~~ + Goal~~ + plan the next goal
