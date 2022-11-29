@@ -428,6 +428,7 @@ def main():
         args.use_cached_data, args.save_tokenized_data = False, False
         args.in_goal_with_goal_seq, args.in_topic_with_goal_seq,args.in_topic_with_topic_seq = 'T','T','T'
         args.goal_prompt_idea = 1 # goal-seq넣는순서 쭈르륵
+        args.goal_prompt_idea1_order = 'ug'
         pass
     elif sysChecker() == "Windows":  # HJ local
         args.do_train, args.do_eval, args.do_finetune, args.overwrite_output_dir = False, False, False, True
