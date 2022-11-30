@@ -366,7 +366,7 @@ def main():
     parser.add_argument("--data_dir", default='../data', type=str,help="The data directory.")
     parser.add_argument("--cache_dir", default='../temp_cache/bart', type=str, help="The cache directory.") # /projdata1/info_fil/ydeng/bert
     # HJ 특별추가 Parameters
-    parser.add_argument("--log_name", default='', type=str,help="Log fileName")  # HJ : Log file middle Name
+    parser.add_argument("--log_name", default=f'{get_time_kst()}', type=str,help="Log fileName")  # HJ : Log file middle Name
     parser.add_argument("--log_dir", default='output/logs', type=str,help="Log dir")  # HJ : Log dir
     parser.add_argument("--use_cached_data", default=False, type=bool,help="Use cached data (tokenized dataset 활용여부)")  # HJ : Use cached data (tokenized dataset 활용여부)
     parser.add_argument("--save_tokenized_data", default=False, type=bool,help="tokenized dataset 저장여부")  # HJ : tokenized dataset 저장여부
@@ -421,7 +421,7 @@ def main():
     if sysChecker() == 'Linux':  # HJ KT-server
         args.do_train, args.do_eval, args.do_finetune, args.overwrite_output_dir = True, True, True, True
         # args.gpu = '0'
-        # args.gpu, args.num_train_epochs, args.num_ft_epochs = '0', 1, 1
+        # args.num_train_epochs, args.num_ft_epochs = '0', 1, 1
         args.per_gpu_train_batch_size, args.per_gpu_eval_batch_size = 56, 56
         args.cache_dir = '../temp_cache/bart'
         args.data_dir = '/home/work/CRSTEST/UniMIND/data'
