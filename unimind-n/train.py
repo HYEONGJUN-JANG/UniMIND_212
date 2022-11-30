@@ -421,7 +421,7 @@ def main():
     if sysChecker() == 'Linux':  # HJ KT-server
         args.do_train, args.do_eval, args.do_finetune, args.overwrite_output_dir = True, True, True, True
         # args.gpu = '0'
-        # args.num_train_epochs, args.num_ft_epochs = '0', 1, 1
+        # args.num_train_epochs, args.num_ft_epochs = 1, 1
         args.per_gpu_train_batch_size, args.per_gpu_eval_batch_size = 56, 56
         args.cache_dir = '../temp_cache/bart'
         args.data_dir = '/home/work/CRSTEST/UniMIND/data'
