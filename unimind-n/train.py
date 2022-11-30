@@ -439,6 +439,7 @@ def main():
         args.in_goal_with_goal_seq, args.in_topic_with_goal_seq, args.in_topic_with_topic_seq = 'T', 'T', 'T'
         args.goal_prompt_idea = 1
         args.goal_prompt_idea1_order = 'ug'
+        args.goal_instruction=True
         pass
     else:
         print("Check Your Platform Setting")
@@ -472,7 +473,7 @@ def main():
 
     config = BartConfig.from_pretrained(args.model_name_or_path, cache_dir=args.cache_dir)
     tokenizer = BertTokenizer.from_pretrained(args.model_name_or_path, do_lower_case=args.do_lower_case, cache_dir=args.cache_dir)
-    tokenizer.add_special_tokens({'additional_special_tokens': ['[goal]', '[user]', '[system]', '[knowledge]', '[item]','[profile]', '[history]']})
+    tokenizer.add_special_tokens({'additional_special_tokens': ['[goal]', '[user]', '[system]', '[knowledge]', '[item]','[profile]', '[history]','[goal_sequence]','[dialog_history]']})
 
     ft_dataset = data_reader.load_and_cache_examples(args, tokenizer, evaluate=False)
     train_dataset = data_reader.merge_dataset(ft_dataset) # train_dataset은 다 때려박아주려고 만드는것이고, ['resp','goal','know','item']을 다 동시에 넣은것 맞음
@@ -500,7 +501,7 @@ def main():
 
     # Fine-tuning
     if args.do_finetune:
-        for task in ['goal', 'know', 'item', 'resp']:
+        for task in ['goal', 'know', 'item', 'resp']: # 각 task 별로 순차적 수행
             if hasattr(model, 'module'):
                 model.module.load_state_dict(torch.load(os.path.join(output_dir, 'pytorch_model.bin')))
             else:

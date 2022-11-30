@@ -40,8 +40,8 @@ def convert_to_features_goalPromptidea1_2_3(args, tokenizer, mode):
             hist_id = know['item_history'] if len(know['item_history'])>0 else [len(item_dict)-1]
             profile_id = tokenizer.encode('[profile]' + '|'.join(know['user_profile']))[1:]
             # HJ: Goal sequence 분리용
-            gs_goal_list=[]
-            gs_utt_list=[]
+            gs_goal_list=[tokenizer.encode('[goal_sequence]')[1],]
+            gs_utt_list=[tokenizer.encode('[dialog_history]')[1],]
             ## HJ 첫번째 발화
             first_utt = conv[0]
             if first_utt['role'] == 'user' and args.data_name == 'durecdial': pass # user가 먼저 말했고 durecdial이라면? pass
@@ -83,7 +83,7 @@ def convert_to_features_goalPromptidea1_2_3(args, tokenizer, mode):
 
 
                 source_ids.append([101] + new_source_id[-args.max_seq_length+1:])
-                target_ids.append([101] + target_id[-args.max_target_length+1:])
+                target_ids.append(target_id[-args.max_target_length+1:])
                 item_ids.append([len(item_dict)-1]) # [PAD]
                 data_dict['resp']['source_ids'].append(source_ids[-1])
                 data_dict['resp']['target_ids'].append(target_ids[-1])
@@ -97,23 +97,23 @@ def convert_to_features_goalPromptidea1_2_3(args, tokenizer, mode):
                 ### prepare goal selection data
                 target_id = tokenizer.encode(utt['goal'])
                 # new_source_id = source_goal_id + tokenizer.encode('计划下一个目标：')[1:] # HJ Natural Language Prompt -- plan the next goal
-                if args.goal_instruction:
+                if args.goal_instruction: # HJ: Use goal instruction in goal input
                     if args.goal_prompt_idea1_order == 'ug':
-                        if gs_goal_list: new_source_id = gs_utt_list + gs_goal_list + tokenizer.encode('计划下一个目标：')[1:]  # HJ Utterance~~ + Goal~~ + plan the next goal
+                        if len(gs_goal_list)>1: new_source_id = tokenizer.encode('对话如此时：')[1:] + gs_utt_list + tokenizer.encode('对话目标的顺序如下：')[1:] + gs_goal_list + tokenizer.encode('计划下一个目标：')[1:] #HJ Utterance~~ + Goal~~ + plan the next goal
+                        else: new_source_id = tokenizer.encode('对话如此时：')[1:] + gs_utt_list +  tokenizer.encode('计划下一个目标：')[1:] #HJ Utterance~~ + Goal~~ + plan the next goal
+                    elif args.goal_prompt_idea1_order =='gu':
+                        if len(gs_goal_list)>1: new_source_id = tokenizer.encode('对话目标的顺序如下：')[1:] + gs_goal_list + tokenizer.encode('对话如此时：')[1:] + gs_utt_list + tokenizer.encode('计划下一个目标：')[1:] #HJ Utterance~~ + Goal~~ + plan the next goal
+                        else: new_source_id = tokenizer.encode('对话如此时：')[1:] + gs_utt_list + tokenizer.encode('计划下一个目标：')[1:] #HJ Utterance~~ + Goal~~ + plan the next goal
+                    else: print("Check goal prompt idea1 order"); assert 0
+                else: # HJ: Not Use goal instruction
+                    if args.goal_prompt_idea1_order == 'ug':
+                        if len(gs_goal_list)>1: new_source_id = gs_utt_list + gs_goal_list + tokenizer.encode('计划下一个目标：')[1:]  # HJ Utterance~~ + Goal~~ + plan the next goal
                         else: new_source_id = gs_utt_list + tokenizer.encode('计划下一个目标：')[1:]  # HJ Utterance~~ + Goal~~ + plan the next goal
                     elif args.goal_prompt_idea1_order == 'gu':
-                        if gs_goal_list: new_source_id = gs_goal_list + gs_utt_list + tokenizer.encode('计划下一个目标：')[1:]  # HJ Utterance~~ + Goal~~ + plan the next goal
+                        if len(gs_goal_list)>1: new_source_id = gs_goal_list + gs_utt_list + tokenizer.encode('计划下一个目标：')[1:]  # HJ Utterance~~ + Goal~~ + plan the next goal
                         else: new_source_id = gs_utt_list + tokenizer.encode('计划下一个目标：')[1:]  # HJ Utterance~~ + Goal~~ + plan the next goal
                     else:
                         print("Check goal prompt idea1 order"); assert 0
-                else:
-                    if args.goal_prompt_idea1_order == 'ug':
-                        if gs_goal_list: new_source_id = tokenizer.encode('对话如此时：')[1:] + gs_utt_list + tokenizer.encode('目标顺序如此时：')[1:] + gs_goal_list + tokenizer.encode('计划下一个目标：')[1:] #HJ Utterance~~ + Goal~~ + plan the next goal
-                        else: new_source_id = tokenizer.encode('对话如此时：')[1:] + gs_utt_list +  tokenizer.encode('计划下一个目标：')[1:] #HJ Utterance~~ + Goal~~ + plan the next goal
-                    elif args.goal_prompt_idea1_order =='gu':
-                        if gs_goal_list: new_source_id = tokenizer.encode('目标顺序如此时：')[1:] + gs_goal_list + tokenizer.encode('对话如此时：')[1:] + gs_utt_list + tokenizer.encode('计划下一个目标：')[1:] #HJ Utterance~~ + Goal~~ + plan the next goal
-                        else: new_source_id = tokenizer.encode('对话如此时：')[1:] + gs_utt_list + tokenizer.encode('计划下一个目标：')[1:] #HJ Utterance~~ + Goal~~ + plan the next goal
-                    else: print("Check goal prompt idea1 order"); assert 0
                     pass
                 # HJ 현재까지 진행된 utt, goal 처리해서 new_source_id 생성
 
@@ -131,7 +131,7 @@ def convert_to_features_goalPromptidea1_2_3(args, tokenizer, mode):
                     assert 0
 
                 source_ids.append([101] + new_source_id[-args.max_seq_length+1:])
-                target_ids.append([101] + target_id[-args.max_target_length+1:])
+                target_ids.append(target_id[-args.max_target_length+1:])
                 item_ids.append([len(item_dict)-1])
                 data_dict['goal']['source_ids'].append(source_ids[-1])
                 data_dict['goal']['target_ids'].append(target_ids[-1])
@@ -150,7 +150,7 @@ def convert_to_features_goalPromptidea1_2_3(args, tokenizer, mode):
                 else:
                     source_know_id += (tokenizer.encode('[{}]'.format(utt['role']) + utt['utterance'])[1:]) # HJ: Topic 예측시 Topic Seq 빼고 보기
                 source_ids.append([101] + new_source_id[-args.max_seq_length+1:])
-                target_ids.append([101] + target_id[-args.max_target_length+1:])
+                target_ids.append( target_id[-args.max_target_length+1:])
                 item_ids.append([len(item_dict)-1])
                 data_dict['know']['source_ids'].append(source_ids[-1])
                 data_dict['know']['target_ids'].append(target_ids[-1])
@@ -165,7 +165,7 @@ def convert_to_features_goalPromptidea1_2_3(args, tokenizer, mode):
                     new_source_id = profile_id + source_id + tokenizer.encode('[goal]' + utt['goal'])[1:] + tokenizer.encode('[knowledge]' + '|'.join(utt['knowledge']))[1:] + tokenizer.encode('推荐：')[1:] # HJ: 상품 prompt
                     item_id = utt['item_id']
                     source_ids.append([101] + new_source_id[-args.max_seq_length+1:])
-                    target_ids.append([101] + target_id[-args.max_target_length+1:])
+                    target_ids.append( target_id[-args.max_target_length+1:])
                     item_ids.append(item_id)
                     data_dict['item']['source_ids'].append(source_ids[-1])
                     data_dict['item']['target_ids'].append(target_ids[-1])
