@@ -155,9 +155,9 @@ def train(args, train_dataset, model, tokenizer, task=None):
                 os.makedirs(output_dir)
             model_to_save = model.module if hasattr(model,
                                                     'module') else model  # Take care of distributed/parallel training
-            torch.save(model_to_save.state_dict(), os.path.join(output_dir, 'pytorch_model.bin'))
+            torch.save(model_to_save.state_dict(), os.path.join(output_dir, f'{args.log_name}_pytorch_model.bin'))
             # model_to_save.save_pretrained(output_dir)
-            torch.save(args, os.path.join(output_dir, 'training_args.bin'))
+            torch.save(args, os.path.join(output_dir, f'{args.log_name}_training_args.bin'))
             logging.info("Saving model checkpoint to %s", output_dir)
 
     tb_writer.close()
@@ -277,9 +277,9 @@ def pipeline(args, model, tokenizer, save_output=False):
 
         output_dir = os.path.join(args.output_dir, task, 'best_checkpoint')
         if hasattr(model, 'module'):
-            model.module.load_state_dict(torch.load(os.path.join(output_dir, 'pytorch_model.bin')))
+            model.module.load_state_dict(torch.load(os.path.join(output_dir, f'{args.log_name}_pytorch_model.bin')))
         else:
-            model.load_state_dict(torch.load(os.path.join(output_dir, 'pytorch_model.bin')))
+            model.load_state_dict(torch.load(os.path.join(output_dir, f'{args.log_name}_pytorch_model.bin')))
         model_to_eval = model.module if hasattr(model, 'module') else model
 
         for batch in tqdm(eval_dataloader, desc="Evaluating", bar_format=' {percentage:3.0f} % | {bar:23} {r_bar}'):
@@ -503,9 +503,9 @@ def main():
     if args.do_finetune:
         for task in ['goal', 'know', 'item', 'resp']: # 각 task 별로 순차적 수행
             if hasattr(model, 'module'):
-                model.module.load_state_dict(torch.load(os.path.join(output_dir, 'pytorch_model.bin')))
+                model.module.load_state_dict(torch.load(os.path.join(output_dir, f'{args.log_name}_pytorch_model.bin')))
             else:
-                model.load_state_dict(torch.load(os.path.join(output_dir, 'pytorch_model.bin')))
+                model.load_state_dict(torch.load(os.path.join(output_dir, f'{args.log_name}_pytorch_model.bin')))
 
             logging.info("")
             logging.info("")
@@ -519,10 +519,10 @@ def main():
         # Load a trained model and vocabulary that you have fine-tuned
         # model = BartForConditionalGeneration.from_pretrained(output_dir)
         if hasattr(model, 'module'):
-            model.module.load_state_dict(torch.load(os.path.join(output_dir, 'pytorch_model.bin')))
+            model.module.load_state_dict(torch.load(os.path.join(output_dir, f'{args.log_name}_pytorch_model.bin')))
         else:
-            # model.load_state_dict(torch.load(os.path.join(output_dir, 'pytorch_model.bin'))) # Default
-            model.load_state_dict(torch.load(os.path.join(output_dir, 'pytorch_model.bin'), map_location=str(args.device).split()[0]))  # HJ
+            # model.load_state_dict(torch.load(os.path.join(output_dir, f'{args.log_name}_pytorch_model.bin'))) # Default
+            model.load_state_dict(torch.load(os.path.join(output_dir, f'{args.log_name}_pytorch_model.bin'), map_location=str(args.device).split()[0]))  # HJ
         tokenizer = BertTokenizer.from_pretrained(output_dir, do_lower_case=args.do_lower_case)
         model.to(args.device)
         logging.info("")
