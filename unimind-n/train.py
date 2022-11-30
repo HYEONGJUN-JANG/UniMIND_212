@@ -121,10 +121,8 @@ def train(args, train_dataset, model, tokenizer, task=None):
             outputs = model(**inputs)
             loss = outputs[0]  # model outputs are always tuple in pytorch-transformers (see doc)
             ## HJ 멀티GPU때
-            if len(args.device_id) > 1:
-                loss = loss.mean()  # mean() to average on multi-gpu parallel training
-            if args.gradient_accumulation_steps > 1:
-                loss = loss / args.gradient_accumulation_steps
+            if len(args.device_id) > 1: loss = loss.mean()  # mean() to average on multi-gpu parallel training
+            if args.gradient_accumulation_steps > 1: loss = loss / args.gradient_accumulation_steps
 
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), args.max_grad_norm)
@@ -153,8 +151,7 @@ def train(args, train_dataset, model, tokenizer, task=None):
                 output_dir = os.path.join(args.output_dir, 'best_checkpoint')
             if not os.path.exists(output_dir):
                 os.makedirs(output_dir)
-            model_to_save = model.module if hasattr(model,
-                                                    'module') else model  # Take care of distributed/parallel training
+            model_to_save = model.module if hasattr(model,'module') else model  # Take care of distributed/parallel training
             torch.save(model_to_save.state_dict(), os.path.join(output_dir, f'{args.log_name}_pytorch_model.bin'))
             # model_to_save.save_pretrained(output_dir)
             torch.save(args, os.path.join(output_dir, f'{args.log_name}_training_args.bin'))
@@ -181,8 +178,7 @@ def evaluate(args, model, tokenizer, eval_task=None, save_output=False):
         tasks = [eval_task]
     for task in tasks:
         task_eval_dataset = eval_dataset[task]
-        eval_dataloader = DataLoader(DataFrame(task_eval_dataset, args), batch_size=args.eval_batch_size, shuffle=False,
-                                     collate_fn=collate_fn)
+        eval_dataloader = DataLoader(DataFrame(task_eval_dataset, args), batch_size=args.eval_batch_size, shuffle=False, collate_fn=collate_fn)
         # Eval!
         logging.info("***** Running evaluation {} *****".format(task))
         logging.info("  Num examples = %d", len(task_eval_dataset))
@@ -370,14 +366,14 @@ def main():
     parser.add_argument("--log_dir", default='output/logs', type=str,help="Log dir")  # HJ : Log dir
     parser.add_argument("--use_cached_data", default=False, type=bool,help="Use cached data (tokenized dataset 활용여부)")  # HJ : Use cached data (tokenized dataset 활용여부)
     parser.add_argument("--save_tokenized_data", default=False, type=bool,help="tokenized dataset 저장여부")  # HJ : tokenized dataset 저장여부
-
-    parser.add_argument("--goal_input", default='dialog-goal', type=str,help="tokenizing with goal_sequence")  # HJ : goal예측시 dialog, goal_seq 넣을 지 말지 결정
+    # HJ About Goal
+    parser.add_argument("--goal_input", default='dialog-goal', type=str.lower, help="tokenizing with goal_sequence")  # HJ : goal예측시 dialog, goal_seq 넣을 지 말지 결정
     parser.add_argument("--goal_prompt_idea", default='0', type=int, help="goal prompt idea")  # HJ : goalprompt idea
     parser.add_argument("--goal_instruction", action='store_true',help="Whether to use goal instruction.")  # HJ : goalprompt idea - 2 : instruction
-    parser.add_argument("--goal_prompt_idea1_order", default='ug', type=str, help="goal prompt idea order -- utt+goal or goal+urr")  # HJ : goalprompt idea
-
-    parser.add_argument("--in_topic_with_goal_seq", default='T', type=str,help="HJ : tokenized with topic_sequence")  # HJ : in_topic_with_goal_seq tokenized with topic_sequence
-    parser.add_argument("--in_topic_with_topic_seq", default='T', type=str,help="HJ : tokenized with topic_sequence")  # HJ : in_topic_with_topic_seq tokenized with topic_sequence
+    parser.add_argument("--goal_prompt_idea1_order", default='ug', type=str.lower, help="goal prompt idea order -- utt+goal or goal+urr")  # HJ : goalprompt idea
+    # HJ About Topic
+    parser.add_argument("--in_topic_with_goal_seq", default='T', type=str.upper,help="HJ : tokenized with topic_sequence")  # HJ : in_topic_with_goal_seq tokenized with topic_sequence
+    parser.add_argument("--in_topic_with_topic_seq", default='T', type=str.upper,help="HJ : tokenized with topic_sequence")  # HJ : in_topic_with_topic_seq tokenized with topic_sequence
 
     ## Other parameters
 
@@ -412,9 +408,6 @@ def main():
     parser.add_argument("--max_grad_norm", default=1.0, type=float, help="Max gradient norm.")
 
     args = parser.parse_args()
-    for i in [args.in_topic_with_goal_seq, args.in_topic_with_topic_seq]:
-        i = getUpperFirst(i)
-    args.goal_input = args.goal_input.lower()
 
     # HJ Desktop and Server Settings
     from platform import system as sysChecker
@@ -445,7 +438,7 @@ def main():
         print("Check Your Platform Setting")
         exit()
 
-    args.output_dir = os.path.join(args.output_dir, args.data_name)
+    args.output_dir = os.path.join(args.output_dir, get_time_kst(), args.data_name)
     # Create output directory if needed
     if not os.path.exists(args.output_dir): os.makedirs(args.output_dir)
     if not os.path.exists(args.log_dir): os.makedirs(args.log_dir)
