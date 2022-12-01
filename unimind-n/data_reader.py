@@ -16,9 +16,11 @@ def read_pkl(filename):
         return pickle.load(f)
 
 def load_and_cache_examples(args, tokenizer, evaluate=False):
+    from train import get_time_kst
     mode = 'test' if evaluate else 'train'
     # Load data features from cache or dataset file
-    cached_features_file = os.path.join(args.data_dir, 'cached_nl_{}_{}_{}_{}_{}'.format(
+    cached_features_file = os.path.join(args.data_dir, '{}_cached_nl_{}_{}_{}_{}_{}'.format(
+        get_time_kst(),
         args.data_name, # durecdial
         mode, # train/test
         list(filter(None, args.model_name_or_path.split('/'))).pop(), # bart-base-chinese

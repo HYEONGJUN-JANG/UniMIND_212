@@ -149,12 +149,11 @@ def train(args, train_dataset, model, tokenizer, task=None):
                 output_dir = os.path.join(args.output_dir, task, 'best_checkpoint')
             else:
                 output_dir = os.path.join(args.output_dir, 'best_checkpoint')
-            if not os.path.exists(output_dir):
-                os.makedirs(output_dir)
+            if not os.path.exists(output_dir): os.makedirs(output_dir)
             model_to_save = model.module if hasattr(model,'module') else model  # Take care of distributed/parallel training
             torch.save(model_to_save.state_dict(), os.path.join(output_dir, f'{args.log_name}_pytorch_model.bin'))
-            # model_to_save.save_pretrained(output_dir)
             torch.save(args, os.path.join(output_dir, f'{args.log_name}_training_args.bin'))
+            # model_to_save.save_pretrained(output_dir)
             logging.info("Saving model checkpoint to %s", output_dir)
 
     tb_writer.close()
@@ -215,17 +214,11 @@ def evaluate(args, model, tokenizer, eval_task=None, save_output=False):
                         # length_penalty=1.5,
                         early_stopping=True,
                     )
-                    preds.extend([
-                        tokenizer.decode(
-                            g, skip_special_tokens=True, clean_up_tokenization_spaces=True)
-                        for g in generated_ids
-                    ])
+                    preds.extend([tokenizer.decode(g, skip_special_tokens=True, clean_up_tokenization_spaces=True)
+                                  for g in generated_ids])
 
-                    targets.extend([
-                        tokenizer.decode(
-                            g, skip_special_tokens=True, clean_up_tokenization_spaces=True)
-                        for g in batch['labels']
-                    ])
+                    targets.extend([tokenizer.decode(g, skip_special_tokens=True, clean_up_tokenization_spaces=True)
+                                    for g in batch['labels']])
 
         if save_output:
             if eval_task is None:
@@ -450,11 +443,8 @@ def main():
                         datefmt='%Y/%m/%d_%p_%I:%M:%S ',
                         )
     logging.info('Commend: {}'.format(', '.join(map(str, sys.argv))))
-    if os.path.exists(args.output_dir) and os.listdir(
-            args.output_dir) and args.do_train and not args.overwrite_output_dir:
-        raise ValueError(
-            "Output directory ({}) already exists and is not empty. Use --overwrite_output_dir to overcome.".format(
-                args.output_dir))
+    if os.path.exists(args.output_dir) and os.listdir(args.output_dir) and args.do_train and not args.overwrite_output_dir:
+        raise ValueError("Output directory ({}) already exists and is not empty. Use --overwrite_output_dir to overcome.".format(args.output_dir))
 
     # Setup CUDA, GPU & distributed training
     device, device_id = utils.set_cuda(args)
@@ -480,8 +470,9 @@ def main():
 
     logging.info(get_time_kst())
     logging.info("Training/evaluation parameters %s", args)
-    output_dir = os.path.join(args.output_dir, 'best_checkpoint')
 
+
+    output_dir = os.path.join(args.output_dir, 'best_checkpoint')
     # Training
     if args.do_train:
         logging.info("")
@@ -494,11 +485,16 @@ def main():
 
     # Fine-tuning
     if args.do_finetune:
+        load_path = os.path.join(output_dir, f'{args.log_name}_pytorch_model.bin')
+        logging.info("Load Path")
+        logging.info(load_path)
+        logging.info("")
+
         for task in ['goal', 'know', 'item', 'resp']: # 각 task 별로 순차적 수행
             if hasattr(model, 'module'):
-                model.module.load_state_dict(torch.load(os.path.join(output_dir, f'{args.log_name}_pytorch_model.bin')))
+                model.module.load_state_dict(load_path)
             else:
-                model.load_state_dict(torch.load(os.path.join(output_dir, f'{args.log_name}_pytorch_model.bin')))
+                model.load_state_dict(load_path)
 
             logging.info("")
             logging.info("")
@@ -511,11 +507,16 @@ def main():
     if args.do_eval:
         # Load a trained model and vocabulary that you have fine-tuned
         # model = BartForConditionalGeneration.from_pretrained(output_dir)
+        load_path = os.path.join(output_dir, f'{args.log_name}_pytorch_model.bin')
+        logging.info("Load Path")
+        logging.info(load_path)
+        logging.info("")
+
         if hasattr(model, 'module'):
-            model.module.load_state_dict(torch.load(os.path.join(output_dir, f'{args.log_name}_pytorch_model.bin')))
+            model.module.load_state_dict(load_path)
         else:
             # model.load_state_dict(torch.load(os.path.join(output_dir, f'{args.log_name}_pytorch_model.bin'))) # Default
-            model.load_state_dict(torch.load(os.path.join(output_dir, f'{args.log_name}_pytorch_model.bin'), map_location=str(args.device).split()[0]))  # HJ
+            model.load_state_dict(torch.load(load_path, map_location=str(args.device).split()[0]))  # HJ
         tokenizer = BertTokenizer.from_pretrained(output_dir, do_lower_case=args.do_lower_case)
         model.to(args.device)
         logging.info("")
@@ -523,7 +524,7 @@ def main():
         logging.info(get_time_kst())
         logging.info(" Eval task ")
         logging.info("")
-        evaluate(args, model, tokenizer, save_output=True) # Evaluation
+        evaluate(args, model, tokenizer, save_output=False) # Evaluation
 
     # Pipeline Evaluation
     if args.do_pipeline:
