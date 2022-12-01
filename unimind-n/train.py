@@ -233,7 +233,7 @@ def evaluate(args, model, tokenizer, eval_task=None, save_output=False):
                     outfile.write("{}\n".format(p))
                     reffile.write("{}\n".format(t))
 
-        auto_scores = metrics.calculate(preds, targets, args.data_name, task, logging)
+        auto_scores = metrics.calculate(preds, targets, args.data_name, task, logging, args)
         logging.info(auto_scores)
         print(auto_scores)
         all_metrics += auto_scores
@@ -333,7 +333,7 @@ def pipeline(args, model, tokenizer, save_output=False):
         #             reffile.write("{}\n".format(t))
 
         all_preds[task] = preds
-        auto_scores = metrics.calculate(preds, targets, args.data_name, task, logging)
+        auto_scores = metrics.calculate(preds, targets, args.data_name, task, logging,args)
         if task == 'resp':
             print(sum(tr_loss) / len(tr_loss))
             ppl = math.exp(sum(tr_loss) / len(tr_loss))
@@ -405,12 +405,14 @@ def main():
     # HJ Desktop and Server Settings
     from platform import system as sysChecker
     if sysChecker() == 'Linux':  # HJ KT-server
+        home='/home/work/CRSTEST/UniMIND'
         args.do_train, args.do_eval, args.do_finetune, args.overwrite_output_dir = True, True, True, True
         # args.gpu = '0'
         # args.num_train_epochs, args.num_ft_epochs = 1, 1
         args.per_gpu_train_batch_size, args.per_gpu_eval_batch_size = 56, 56
-        args.cache_dir = '../temp_cache/bart'
-        args.data_dir = '/home/work/CRSTEST/UniMIND/data'
+        args.output_dir = home+'/unimind-n/output'
+        args.cache_dir = home+'/temp_cache/bart'
+        args.data_dir = home+'/data'
         args.use_cached_data, args.save_tokenized_data = False, False
         args.in_goal_with_goal_seq, args.in_topic_with_goal_seq,args.in_topic_with_topic_seq = 'T','T','T'
         args.goal_prompt_idea = 1 # goal-seq넣는순서 쭈르륵

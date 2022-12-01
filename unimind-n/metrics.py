@@ -140,9 +140,9 @@ def know_hit_score(pred_pt, gold_pt):
     return [hits1, hits3, hits5]
 
 
-def goal_f1_score(pred_pt, gold_pt, data_name):
+def goal_f1_score(pred_pt, gold_pt, data_name, args):
     goal_dict = {}
-    with open('../data/{}/goal2id.txt'.format(data_name), 'r', encoding='utf-8') as infile:
+    with open(args.data_dir +'/{}/goal2id.txt'.format(data_name), 'r', encoding='utf-8') as infile:
         for line in infile:
             items = line.strip().lower().split('\t')
             goal_dict[items[0]] = items[1]
@@ -253,7 +253,7 @@ def tgredial_bleu(tokenized_gen, tokenized_tar):
     return bleu_sum / count, bleu1_sum / count, bleu2_sum / count
 
 
-def calculate(raw_pred, raw_ref, data_name, task, logging):
+def calculate(raw_pred, raw_ref, data_name, task, logging, args):
     print('Dataset: ', data_name, 'Task: ', task, '-----------------')
     if task in ['resp', 'direct']:
         if data_name == 'durecdial':
@@ -335,7 +335,7 @@ def calculate(raw_pred, raw_ref, data_name, task, logging):
         else:
             refs = [ref.split(' | ') for ref in raw_ref]
             preds = [pred.split(' | ') for pred in raw_pred]
-        f1_scores = goal_f1_score(preds, refs, data_name)
+        f1_scores = goal_f1_score(preds, refs, data_name,args) #HJ server-path관련
         print('Running P/R/F1 for ' + ' ' + data_name + '-----------------------------')
         print('P/R/F1: ', f1_scores)
         logging.info('Running P/R/F1 for ' + ' ' + data_name + '-----------------------------')
