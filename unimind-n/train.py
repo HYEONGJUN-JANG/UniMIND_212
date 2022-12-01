@@ -411,6 +411,7 @@ def main():
         # args.num_train_epochs, args.num_ft_epochs = 1, 1
         args.per_gpu_train_batch_size, args.per_gpu_eval_batch_size = 56, 56
         args.output_dir = home+'/unimind-n/output'
+        args.log_dir= args.output_dir + '/logs'
         args.cache_dir = home+'/temp_cache/bart'
         args.data_dir = home+'/data'
         args.use_cached_data, args.save_tokenized_data = False, False
@@ -494,9 +495,9 @@ def main():
 
         for task in ['goal', 'know', 'item', 'resp']: # 각 task 별로 순차적 수행
             if hasattr(model, 'module'):
-                model.module.load_state_dict(load_path)
+                model.module.load_state_dict(torch.load(load_path))
             else:
-                model.load_state_dict(load_path)
+                model.load_state_dict(torch.load(load_path))
 
             logging.info("")
             logging.info("")
@@ -515,7 +516,7 @@ def main():
         logging.info("")
 
         if hasattr(model, 'module'):
-            model.module.load_state_dict(load_path)
+            model.module.load_state_dict(torch.load(load_path))
         else:
             # model.load_state_dict(torch.load(os.path.join(output_dir, f'{args.log_name}_pytorch_model.bin'))) # Default
             model.load_state_dict(torch.load(load_path, map_location=str(args.device).split()[0]))  # HJ
