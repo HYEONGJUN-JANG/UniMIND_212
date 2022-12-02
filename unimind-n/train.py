@@ -96,11 +96,9 @@ def train(args, train_dataset, model, tokenizer, task=None):
     tr_loss, logging_loss = 0.0, 0.0
     model.zero_grad()
     if task is None:
-        train_iterator = trange(int(args.num_train_epochs), desc="Epoch",
-                                bar_format=' {percentage:3.0f} % | {bar:23} {r_bar}')
+        train_iterator = trange(int(args.num_train_epochs), desc="Epoch", bar_format=' {percentage:3.0f} % | {bar:23} {r_bar}')
     else:
-        train_iterator = trange(int(args.num_ft_epochs), desc="Epoch",
-                                bar_format=' {percentage:3.0f} % | {bar:23} {r_bar}')
+        train_iterator = trange(int(args.num_ft_epochs), desc="Epoch", bar_format=' {percentage:3.0f} % | {bar:23} {r_bar}')
     utils.set_seed(args.seed)  # Added here for reproductibility (even between python 2 and 3)
     global_step = 0
 
@@ -145,12 +143,11 @@ def train(args, train_dataset, model, tokenizer, task=None):
 
         if total_rouge[2] > best_f1:
             # Save model checkpoint
-            if task is not None:
-                output_dir = os.path.join(args.output_dir, task, 'best_checkpoint')
-            else:
-                output_dir = os.path.join(args.output_dir, 'best_checkpoint')
+            if task is not None: output_dir = os.path.join(args.output_dir, task, 'best_checkpoint') # HJ  fine-tune시 각 task별 폴더분리
+            else: output_dir = os.path.join(args.output_dir, 'best_checkpoint') # HJ do_train시 output폴더 직속
             if not os.path.exists(output_dir): os.makedirs(output_dir)
             model_to_save = model.module if hasattr(model,'module') else model  # Take care of distributed/parallel training
+
             torch.save(model_to_save.state_dict(), os.path.join(output_dir, f'{args.log_name}_pytorch_model.bin'))
             torch.save(args, os.path.join(output_dir, f'{args.log_name}_training_args.bin'))
             # model_to_save.save_pretrained(output_dir)
@@ -265,10 +262,8 @@ def pipeline(args, model, tokenizer, save_output=False):
         tr_loss = []
 
         output_dir = os.path.join(args.output_dir, task, 'best_checkpoint')
-        if hasattr(model, 'module'):
-            model.module.load_state_dict(torch.load(os.path.join(output_dir, f'{args.log_name}_pytorch_model.bin')))
-        else:
-            model.load_state_dict(torch.load(os.path.join(output_dir, f'{args.log_name}_pytorch_model.bin')))
+        if hasattr(model, 'module'): model.module.load_state_dict(torch.load(os.path.join(output_dir, f'{args.log_name}_pytorch_model.bin')))
+        else: model.load_state_dict(torch.load(os.path.join(output_dir, f'{args.log_name}_pytorch_model.bin')))
         model_to_eval = model.module if hasattr(model, 'module') else model
 
         for batch in tqdm(eval_dataloader, desc="Evaluating", bar_format=' {percentage:3.0f} % | {bar:23} {r_bar}'):
@@ -355,6 +350,7 @@ def main():
     parser.add_argument("--data_dir", default='../data', type=str,help="The data directory.")
     parser.add_argument("--cache_dir", default='../temp_cache/bart', type=str, help="The cache directory.") # /projdata1/info_fil/ydeng/bert
     # HJ 특별추가 Parameters
+    parser.add_argument("--time", default='', type=str,help="Log fileName")  # HJ : Log file middle Name
     parser.add_argument("--log_name", default=f'{get_time_kst()}', type=str,help="Log fileName")  # HJ : Log file middle Name
     parser.add_argument("--log_dir", default='output/logs', type=str,help="Log dir")  # HJ : Log dir
     parser.add_argument("--use_cached_data", default=False, type=bool,help="Use cached data (tokenized dataset 활용여부)")  # HJ : Use cached data (tokenized dataset 활용여부)
@@ -363,6 +359,7 @@ def main():
     parser.add_argument("--goal_input", default='dialog-goal', type=str.lower, help="tokenizing with goal_sequence")  # HJ : goal예측시 dialog, goal_seq 넣을 지 말지 결정
     parser.add_argument("--goal_prompt_idea", default='0', type=int, help="goal prompt idea")  # HJ : goalprompt idea
     parser.add_argument("--goal_instruction", action='store_true',help="Whether to use goal instruction.")  # HJ : goalprompt idea - 2 : instruction
+    parser.add_argument("--goal_special_token", action='store_true',help="Use [goal_sequence], [dialog_history]")  # HJ : goalprompt idea - special token
     parser.add_argument("--goal_prompt_idea1_order", default='ug', type=str.lower, help="goal prompt idea order -- utt+goal or goal+urr")  # HJ : goalprompt idea
     # HJ About Topic
     parser.add_argument("--in_topic_with_goal_seq", default='T', type=str.upper,help="HJ : tokenized with topic_sequence")  # HJ : in_topic_with_goal_seq tokenized with topic_sequence
@@ -401,7 +398,7 @@ def main():
     parser.add_argument("--max_grad_norm", default=1.0, type=float, help="Max gradient norm.")
 
     args = parser.parse_args()
-
+    if args.time :args.time = get_time_kst()
     # HJ Desktop and Server Settings
     from platform import system as sysChecker
     if sysChecker() == 'Linux':  # HJ KT-server
@@ -414,33 +411,34 @@ def main():
         args.log_dir= args.output_dir + '/logs'
         args.cache_dir = home+'/temp_cache/bart'
         args.data_dir = home+'/data'
-        args.use_cached_data, args.save_tokenized_data = False, False
+        args.use_cached_data, args.save_tokenized_data = True, True
         args.in_goal_with_goal_seq, args.in_topic_with_goal_seq,args.in_topic_with_topic_seq = 'T','T','T'
         args.goal_prompt_idea = 1 # goal-seq넣는순서 쭈르륵
         args.goal_prompt_idea1_order = 'ug'
         pass
     elif sysChecker() == "Windows":  # HJ local
-        args.do_train, args.do_eval, args.do_finetune, args.overwrite_output_dir = False, False, False, True
+        args.do_train, args.do_eval, args.do_finetune, args.overwrite_output_dir = True, True, True, True
         args.do_pipeline = True
         args.gpu, args.num_train_epochs, args.num_ft_epochs = '0', 1, 1
         args.per_gpu_train_batch_size, args.per_gpu_eval_batch_size = 2, 2
-        args.use_cached_data, args.save_tokenized_data = False, False
+        args.use_cached_data, args.save_tokenized_data = True, True
         args.in_goal_with_goal_seq, args.in_topic_with_goal_seq, args.in_topic_with_topic_seq = 'T', 'T', 'T'
         args.goal_prompt_idea = 1
         args.goal_prompt_idea1_order = 'ug'
         args.goal_instruction=True
+        args.time = '2022-12-02_110626'
         pass
     else:
         print("Check Your Platform Setting")
         exit()
 
-    args.output_dir = os.path.join(args.output_dir, get_time_kst(), args.data_name)
+    args.output_dir = os.path.join(args.output_dir, args.time, args.data_name)
     # Create output directory if needed
     if not os.path.exists(args.output_dir): os.makedirs(args.output_dir)
     if not os.path.exists(args.log_dir): os.makedirs(args.log_dir)
 
     logging.basicConfig(level=logging.DEBUG,
-                        filename=args.log_dir + f'/{get_time_kst()}_{args.log_name + "_"}log.txt',
+                        filename=args.log_dir + f'/{args.time}_{args.log_name + "_"}log.txt',
                         filemode='a',
                         format='%(asctime)s: %(levelname)s: %(message)s',
                         datefmt='%Y/%m/%d_%p_%I:%M:%S ',
@@ -459,7 +457,8 @@ def main():
 
     config = BartConfig.from_pretrained(args.model_name_or_path, cache_dir=args.cache_dir)
     tokenizer = BertTokenizer.from_pretrained(args.model_name_or_path, do_lower_case=args.do_lower_case, cache_dir=args.cache_dir)
-    tokenizer.add_special_tokens({'additional_special_tokens': ['[goal]', '[user]', '[system]', '[knowledge]', '[item]','[profile]', '[history]','[goal_sequence]','[dialog_history]']})
+    if args.goal_special_token: tokenizer.add_special_tokens({'additional_special_tokens': ['[goal]', '[user]', '[system]', '[knowledge]', '[item]','[profile]', '[history]','[goal_sequence]','[dialog_history]']})
+    else: tokenizer.add_special_tokens({'additional_special_tokens': ['[goal]', '[user]', '[system]', '[knowledge]', '[item]','[profile]', '[history]']})
 
     ft_dataset = data_reader.load_and_cache_examples(args, tokenizer, evaluate=False)
     train_dataset = data_reader.merge_dataset(ft_dataset) # train_dataset은 다 때려박아주려고 만드는것이고, ['resp','goal','know','item']을 다 동시에 넣은것 맞음
@@ -489,15 +488,12 @@ def main():
     # Fine-tuning
     if args.do_finetune:
         load_path = os.path.join(output_dir, f'{args.log_name}_pytorch_model.bin')
-        logging.info("Load Path")
-        logging.info(load_path)
-        logging.info("")
 
         for task in ['goal', 'know', 'item', 'resp']: # 각 task 별로 순차적 수행
-            if hasattr(model, 'module'):
-                model.module.load_state_dict(torch.load(load_path))
-            else:
-                model.load_state_dict(torch.load(load_path))
+            logging.info("")
+            logging.info(" loaded model path %s", load_path)
+            if hasattr(model, 'module'): model.module.load_state_dict(torch.load(load_path))
+            else:model.load_state_dict(torch.load(load_path))
 
             logging.info("")
             logging.info("")
@@ -514,12 +510,11 @@ def main():
         logging.info("Load Path")
         logging.info(load_path)
         logging.info("")
-
-        if hasattr(model, 'module'):
-            model.module.load_state_dict(torch.load(load_path))
+        if args.do_train and args.do_finetune: pass
         else:
-            # model.load_state_dict(torch.load(os.path.join(output_dir, f'{args.log_name}_pytorch_model.bin'))) # Default
-            model.load_state_dict(torch.load(load_path, map_location=str(args.device).split()[0]))  # HJ
+            if hasattr(model, 'module'): model.module.load_state_dict(torch.load(load_path))
+            else: model.load_state_dict(torch.load(load_path, map_location=str(args.device).split()[0]))  # HJ
+                # model.load_state_dict(torch.load(os.path.join(output_dir, f'{args.log_name}_pytorch_model.bin'))) # Default
         tokenizer = BertTokenizer.from_pretrained(output_dir, do_lower_case=args.do_lower_case)
         model.to(args.device)
         logging.info("")

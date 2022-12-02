@@ -40,8 +40,9 @@ def convert_to_features_goalPromptidea1_2_3(args, tokenizer, mode):
             hist_id = know['item_history'] if len(know['item_history'])>0 else [len(item_dict)-1]
             profile_id = tokenizer.encode('[profile]' + '|'.join(know['user_profile']))[1:]
             # HJ: Goal sequence 분리용
-            gs_goal_list=[tokenizer.encode('[goal_sequence]')[1],]
-            gs_utt_list=[tokenizer.encode('[dialog_history]')[1],]
+            if args.goal_special_token: gs_goal_list, gs_utt_list =[tokenizer.encode('[goal_sequence]')[1],] , [tokenizer.encode('[dialog_history]')[1],]
+            else: gs_goal_list, gs_utt_list = [],[]
+
             ## HJ 첫번째 발화
             first_utt = conv[0]
             if first_utt['role'] == 'user' and args.data_name == 'durecdial': pass # user가 먼저 말했고 durecdial이라면? pass
