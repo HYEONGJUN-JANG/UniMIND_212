@@ -350,7 +350,7 @@ def main():
     parser.add_argument("--data_dir", default='../data', type=str,help="The data directory.")
     parser.add_argument("--cache_dir", default='../temp_cache/bart', type=str, help="The cache directory.") # /projdata1/info_fil/ydeng/bert
     # HJ 특별추가 Parameters
-    parser.add_argument("--time", default='', type=str,help="Log fileName")  # HJ : Log file middle Name
+    parser.add_argument("--time", default='', type=str,help="Time for fileName")  # HJ : Log file middle Name
     parser.add_argument("--log_name", default=f'{get_time_kst()}', type=str,help="Log fileName")  # HJ : Log file middle Name
     parser.add_argument("--log_dir", default='output/logs', type=str,help="Log dir")  # HJ : Log dir
     parser.add_argument("--use_cached_data", default=False, type=bool,help="Use cached data (tokenized dataset 활용여부)")  # HJ : Use cached data (tokenized dataset 활용여부)
@@ -398,7 +398,7 @@ def main():
     parser.add_argument("--max_grad_norm", default=1.0, type=float, help="Max gradient norm.")
 
     args = parser.parse_args()
-    if args.time :args.time = get_time_kst()
+    if args.time =='' :args.time = get_time_kst()
     # HJ Desktop and Server Settings
     from platform import system as sysChecker
     if sysChecker() == 'Linux':  # HJ KT-server
@@ -426,7 +426,7 @@ def main():
         args.goal_prompt_idea = 1
         args.goal_prompt_idea1_order = 'ug'
         args.goal_instruction=True
-        args.time = '2022-12-02_110626'
+        # args.time = '2022-12-02_110626'
         pass
     else:
         print("Check Your Platform Setting")

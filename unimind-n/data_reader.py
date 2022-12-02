@@ -19,8 +19,9 @@ def load_and_cache_examples(args, tokenizer, evaluate=False):
     from train import get_time_kst
     mode = 'test' if evaluate else 'train'
     # Load data features from cache or dataset file
-    cached_features_file = os.path.join(args.data_dir, '{}_cached_nl_{}_{}_{}_{}_{}'.format(
+    cached_features_file = os.path.join(args.data_dir, '{}_{}_cached_nl_{}_{}_{}_{}_{}'.format(
         args.time,
+        args.gpu,
         args.data_name, # durecdial
         mode, # train/test
         list(filter(None, args.model_name_or_path.split('/'))).pop(), # bart-base-chinese
