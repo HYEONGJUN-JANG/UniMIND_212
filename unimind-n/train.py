@@ -510,10 +510,10 @@ def main():
         logging.info("Load Path")
         logging.info(load_path)
         logging.info("")
-        if args.do_train and args.do_finetune: pass
-        else:
-            if hasattr(model, 'module'): model.module.load_state_dict(torch.load(load_path))
-            else: model.load_state_dict(torch.load(load_path, map_location=str(args.device).split()[0]))  # HJ
+        # if args.do_train and args.do_finetune: pass
+        # else:
+        if hasattr(model, 'module'): model.module.load_state_dict(torch.load(load_path))
+        else: model.load_state_dict(torch.load(load_path, map_location=str(args.device).split()[0]))  # HJ
                 # model.load_state_dict(torch.load(os.path.join(output_dir, f'{args.log_name}_pytorch_model.bin'))) # Default
         tokenizer = BertTokenizer.from_pretrained(output_dir, do_lower_case=args.do_lower_case)
         model.to(args.device)
