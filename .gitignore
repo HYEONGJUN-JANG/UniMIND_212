@@ -197,3 +197,7 @@ fabric.properties
 # idea folder, uncomment if you don't need it
 # .idea!/
 temp_cache/
+!/temp_cache/
+!/unimind-n/runs/
+!/unimind-n/output/
+!/unimind-n/study/
