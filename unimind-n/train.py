@@ -15,8 +15,8 @@ from torch.utils.data.distributed import DistributedSampler
 from torch.nn.utils.rnn import pad_sequence
 import metrics
 from model import UniMind
-import math
 from pytz import timezone
+import math
 from datetime import datetime
 import sys
 
@@ -338,9 +338,16 @@ def pipeline(args, model, tokenizer, save_output=False):
         all_metrics += auto_scores
     return all_metrics
 
+class Detokenizer():
+    def __init__(self):
+        self.list=list()
+    def encode(self,txt):
+        self.list.append("[CLS]")
+        self.list.append(txt)
+        self.list.append("[SEP]")
+        return self.list
 
 def main():
-
     parser = argparse.ArgumentParser(description="train.py")
 
     ## Required parameters
@@ -365,6 +372,9 @@ def main():
     parser.add_argument("--in_topic_with_goal_seq", default='T', type=str.upper,help="HJ : tokenized with topic_sequence")  # HJ : in_topic_with_goal_seq tokenized with topic_sequence
     parser.add_argument("--in_topic_with_topic_seq", default='T', type=str.upper,help="HJ : tokenized with topic_sequence")  # HJ : in_topic_with_topic_seq tokenized with topic_sequence
 
+    # HJ About Knowledge (지식을 애초에 주지않고 학습 하는 아이디어 (230210)
+    parser.add_argument("--with_know_text", default='T', type=str.upper, help="HJ : tokenized with know_text")  # HJ : Knowledge (지식을 애초에 주지않고 학습 하는 아이디어 (230210)--> 지식추출의 중요성 강조
+
     ## Other parameters
 
     # parser.add_argument("--do_pure_generate", action='store_true', help="Whether to use original model.")
@@ -372,6 +382,7 @@ def main():
     parser.add_argument("--do_eval", action='store_true',help="Whether to run eval.")
     parser.add_argument("--do_finetune", action='store_true',help="Whether to run finetune.")
     parser.add_argument("--do_pipeline", action='store_true',help="Whether to run pipeline eval.")
+    parser.add_argument("--detokenize", action='store_true',help="Data Reader Tokenizing Check")
     parser.add_argument("--evaluate_during_training", action='store_true',help="Rul evaluation during training at each logging step.")
     # parser.add_argument('--logging_steps', type=int, default=500,help="Log every X updates steps.")
     # parser.add_argument('--save_steps', type=int, default=2000, help="Save checkpoint every X updates steps.")
@@ -413,7 +424,7 @@ def main():
         args.data_dir = home+'/data'
         args.use_cached_data, args.save_tokenized_data = True, True
         args.in_goal_with_goal_seq, args.in_topic_with_goal_seq,args.in_topic_with_topic_seq = 'T','T','T'
-        args.goal_prompt_idea = 1 # goal-seq넣는순서 쭈르륵
+        args.goal_prompt_idea = 0 # goal-seq넣는순서 쭈르륵
         args.goal_prompt_idea1_order = 'ug'
         pass
     elif sysChecker() == "Windows":  # HJ local
@@ -423,7 +434,7 @@ def main():
         args.per_gpu_train_batch_size, args.per_gpu_eval_batch_size = 2, 2
         args.use_cached_data, args.save_tokenized_data = True, True
         args.in_goal_with_goal_seq, args.in_topic_with_goal_seq, args.in_topic_with_topic_seq = 'T', 'T', 'T'
-        args.goal_prompt_idea = 1
+        # args.goal_prompt_idea = 1
         args.goal_prompt_idea1_order = 'ug'
         args.goal_instruction=True
         # args.time = '2022-12-02_110626'
@@ -459,7 +470,8 @@ def main():
     tokenizer = BertTokenizer.from_pretrained(args.model_name_or_path, do_lower_case=args.do_lower_case, cache_dir=args.cache_dir)
     if args.goal_special_token: tokenizer.add_special_tokens({'additional_special_tokens': ['[goal]', '[user]', '[system]', '[knowledge]', '[item]','[profile]', '[history]','[goal_sequence]','[dialog_history]']})
     else: tokenizer.add_special_tokens({'additional_special_tokens': ['[goal]', '[user]', '[system]', '[knowledge]', '[item]','[profile]', '[history]']})
-
+    ## Detokenizing
+    if args.detokenize : tokenizer=Detokenizer()
     ft_dataset = data_reader.load_and_cache_examples(args, tokenizer, evaluate=False)
     train_dataset = data_reader.merge_dataset(ft_dataset) # train_dataset은 다 때려박아주려고 만드는것이고, ['resp','goal','know','item']을 다 동시에 넣은것 맞음
     item_dict = train_dataset['item_dict']
@@ -533,5 +545,5 @@ def main():
 
 
 if __name__ == "__main__" :
-    # logging.info('Commend: {}'.format(', '.join(map(str, sys.argv))))
+    logging.info('Commend: {}'.format(', '.join(map(str, sys.argv))))
     main()
