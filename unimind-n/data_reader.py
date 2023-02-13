@@ -38,6 +38,7 @@ def load_and_cache_examples(args, tokenizer, evaluate=False):
         # elif args.goal_prompt_idea == 2: features = data_util.convert_to_features_goalPromptidea2_instruction(args,tokenizer,mode) # HJ mode = evaluate일때 test, 아니면 train
         # elif args.goal_prompt_idea == 3: features = data_util.convert_to_features_goalPromptidea1(args,tokenizer,mode) # HJ mode = evaluate일때 test, 아니면 train
         else:  features = convert_to_features(args, tokenizer, mode) # HJ Default
+        # else:  features = convert_to_features_decoded(args, tokenizer, mode) # HJ 기존 default에서 tokenizer만 제거
 
         if args.save_tokenized_data:
             print("Loaded number of instance:", len(features['resp']['source_ids']))
