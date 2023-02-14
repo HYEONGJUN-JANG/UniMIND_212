@@ -417,7 +417,7 @@ def main():
         args.do_train, args.do_eval, args.do_finetune, args.overwrite_output_dir = True, True, True, True
         # args.gpu = '0'
         # args.num_train_epochs, args.num_ft_epochs = 1, 1
-        args.per_gpu_train_batch_size, args.per_gpu_eval_batch_size = 56, 56
+        args.per_gpu_train_batch_size, args.per_gpu_eval_batch_size = 50, 50
         args.output_dir = home+'/unimind-n/output'
         args.log_dir= args.output_dir + '/logs'
         args.cache_dir = home+'/temp_cache/bart'
